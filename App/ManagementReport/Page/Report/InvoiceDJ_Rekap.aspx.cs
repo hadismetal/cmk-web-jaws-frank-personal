@@ -1,0 +1,1018 @@
+﻿using System;
+using System.Linq;
+using System.Web.UI.WebControls;
+using System.Data;
+
+public partial class Page_Summary : System.Web.UI.Page {
+    private Map_DB _db;
+
+    private Map_DB db
+    {
+        get
+        {
+            if (_db == null)
+                _db = new Map_DB();
+            return _db;
+        }
+    }
+
+    public override void Dispose()
+    {
+        if (db != null)
+            db.Dispose();
+        base.Dispose();
+    }
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        App.Protect();
+        App.ProtectRole(Role.Operator);
+
+        if (!IsPostBack)
+        {
+
+            dari.Text = Str.Tgl(DateTime.Today);
+            sampai.Text = Str.Tgl(DateTime.Today);
+            int Tipe = 1;
+            if (tipelokasi.SelectedValue != "")
+                Tipe = Convert.ToInt32(tipelokasi.SelectedValue);
+
+            DLC.LocationList(lokasi, 1);
+            //Generate
+            fillFilter();
+
+            if (App.Refresh(this)) fillTable(sender, e);  
+        }
+    }
+
+    //Display Table
+    protected void fillTable(object sender, EventArgs e)
+    {
+        var rs = from p in db.SalesOrderDJ
+                 where p.SalesOrder.Draft == false && p.SalesOrder.IDSales != null
+                 && p.SalesOrder.StatusPembayaran == true
+                 select p;
+
+        int Tipe = Convert.ToInt32(tipelokasi.SelectedValue);
+        int Lokasi = Convert.ToInt32(lokasi.SelectedValue);
+
+        if (Tipe == 1 || Tipe == 2)
+        {
+            rs = rs.Where(p => p.SalesOrder.IDLokasi == Lokasi && p.SalesOrder.TipeLokasi == Tipe);
+        }
+
+        rs = rs.OrderByDescending(p => p.SalesOrder.Tgl);
+
+        if (dari.Text != "" && sampai.Text != "")
+        {
+            rs = rs.Where(p => p.SalesOrder.Tgl >= Convert.ToDateTime(dari.Text) && p.SalesOrder.Tgl <= Convert.ToDateTime(sampai.Text).AddDays(1));
+        }
+
+        int GroupBy = Convert.ToInt32(groupby.SelectedValue);
+        if(GroupBy == 1)
+        {
+            var rslt = rs.GroupBy(p=>p.StockProductDJ.StockProductDJ_CharProduct.CharProductItem);
+            if (rs.Count() > 0)
+            {
+                decimal TotalHarga = 0m;
+                decimal TotalDiscount = 0m;
+                decimal TotalDiscountProgram = 0m;
+                decimal TotalDiscountGift = 0m;
+                decimal TotalDiscountRound = 0m;
+                decimal TotalButir = 0m;
+                decimal TotalCarat = 0m;
+                decimal TotalNetWeight = 0m;
+                int prev = 0;
+                int index = 1;
+                foreach (var r in rslt)
+                {
+                    decimal Butir = 0m;
+                    decimal Carat = 0m;
+                    decimal Weight = 0m;
+                    int Qty = 1;
+
+                    var st = (from p in db.SalesOrderDJ
+                               where p.StockProductDJ.StockProductDJ_CharProduct.ProductItem == r.Key.ID
+                               && p.SalesOrder.Tgl >= Convert.ToDateTime(dari.Text) && p.SalesOrder.Tgl <= Convert.ToDateTime(sampai.Text).AddDays(1)
+                               select p);
+
+                    Weight = st.Sum(p => p.StockProductDJ.StockProductDJ_CharProduct.NettoWeight);
+
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s=>s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+
+                    if (!Response.IsClientConnected) break;
+
+                    //Sub-Header
+
+                    TableRow tr = new TableRow();
+                    TableCell td;
+
+                    td = new TableCell();
+                    td.Text = "<p>" + index++.ToString() + ".</p>";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Key.Nama;
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Count().ToString();
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.TotalBayar.Value).ToString("N0");
+                    tr.Cells.Add(td);     
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p=>p.Discount.Value)/r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.DiscountProgram.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountGift.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountRound.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Butir.ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Carat.ToString("N3");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Weight.ToString("N2");
+                    tr.Cells.Add(td);
+
+
+                    tb.Rows.Add(tr);
+
+                    TotalHarga += r.Sum(p=>p.TotalBayar.Value);
+                    TotalDiscount += r.Sum(p => p.Discount.Value);
+                    TotalDiscountProgram += r.Sum(p => p.DiscountProgram.Value);
+                    TotalDiscountGift += r.Sum(p=>p.DiscountGift.Value);
+                    TotalDiscountRound += r.Sum(p => p.DiscountRound.Value);
+                    TotalButir += Butir;
+                    TotalCarat += Carat;
+                    TotalNetWeight += Weight;
+                }
+
+                TableRow tr2 = new TableRow();
+                TableCell td2;
+
+                td2 = new TableCell();
+                td2.Text = "<b>Total</b>";
+                td2.ColumnSpan = 2;
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + rs.Count().ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalHarga).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscount / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountProgram / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountGift).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountRound).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalButir).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalCarat).ToString("N3") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalNetWeight).ToString("N2") + "</b>";
+                tr2.Cells.Add(td2);
+
+                tb.Rows.Add(tr2);
+            }
+        }
+        else if (GroupBy == 2)
+        {
+            var rslt = rs.GroupBy(p=>p.StockProductDJ.StockProductDJ_CharProduct.CharProductLevel);
+            if (rs.Count() > 0)
+            {
+                decimal TotalHarga = 0m;
+                decimal TotalDiscount = 0m;
+                decimal TotalDiscountProgram = 0m;
+                decimal TotalDiscountGift = 0m;
+                decimal TotalDiscountRound = 0m;
+                decimal TotalButir = 0m;
+                decimal TotalCarat = 0m;
+                decimal TotalNetWeight = 0m;
+                int prev = 0;
+                int index = 1;
+                foreach (var r in rslt)
+                {
+                    decimal Butir = 0m;
+                    decimal Carat = 0m;
+                    decimal Weight = 0m;
+                    int Qty = 1;
+
+                    var st = (from p in db.SalesOrderDJ
+                              where p.StockProductDJ.StockProductDJ_CharProduct.ProductLevel == r.Key.ID
+                              && p.SalesOrder.Tgl >= Convert.ToDateTime(dari.Text) && p.SalesOrder.Tgl <= Convert.ToDateTime(sampai.Text).AddDays(1)
+                              select p);
+
+                    Weight = st.Sum(p => p.StockProductDJ.StockProductDJ_CharProduct.NettoWeight);
+
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+
+                    if (!Response.IsClientConnected) break;
+
+                    //Sub-Header
+
+                    TableRow tr = new TableRow();
+                    TableCell td;
+
+                    td = new TableCell();
+                    td.Text = "<p>" + index++.ToString() + ".</p>";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Key.Nama;
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Count().ToString();
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.TotalBayar.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.Discount.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.DiscountProgram.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountGift.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountRound.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Butir.ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Carat.ToString("N3");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Weight.ToString("N2");
+                    tr.Cells.Add(td);
+
+
+                    tb.Rows.Add(tr);
+
+                    TotalHarga += r.Sum(p => p.TotalBayar.Value);
+                    TotalDiscount += r.Sum(p => p.Discount.Value);
+                    TotalDiscountProgram += r.Sum(p => p.DiscountProgram.Value);
+                    TotalDiscountGift += r.Sum(p => p.DiscountGift.Value);
+                    TotalDiscountRound += r.Sum(p => p.DiscountRound.Value);
+                    TotalButir += Butir;
+                    TotalCarat += Carat;
+                    TotalNetWeight += Weight;
+                }
+
+                TableRow tr2 = new TableRow();
+                TableCell td2;
+
+                td2 = new TableCell();
+                td2.Text = "<b>Total</b>";
+                td2.ColumnSpan = 2;
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + rs.Count().ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalHarga).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscount / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountProgram / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountGift).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountRound).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalButir).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalCarat).ToString("N3") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalNetWeight).ToString("N2") + "</b>";
+                tr2.Cells.Add(td2);
+
+                tb.Rows.Add(tr2);
+            }
+        }
+        else if (GroupBy == 3)
+        {
+            var rslt = rs.GroupBy(p => p.StockProductDJ.StockProductDJ_CharProduct.CharProductCategory);
+            if (rs.Count() > 0)
+            {
+                decimal TotalHarga = 0m;
+                decimal TotalDiscount = 0m;
+                decimal TotalDiscountProgram = 0m;
+                decimal TotalDiscountGift = 0m;
+                decimal TotalDiscountRound = 0m;
+                decimal TotalButir = 0m;
+                decimal TotalCarat = 0m;
+                decimal TotalNetWeight = 0m;
+                int prev = 0;
+                int index = 1;
+                foreach (var r in rslt)
+                {
+                    decimal Butir = 0m;
+                    decimal Carat = 0m;
+                    decimal Weight = 0m;
+                    int Qty = 1;
+
+                    var st = (from p in db.SalesOrderDJ
+                              where p.StockProductDJ.StockProductDJ_CharProduct.ProductCategory == r.Key.ID
+                              && p.SalesOrder.Tgl >= Convert.ToDateTime(dari.Text) && p.SalesOrder.Tgl <= Convert.ToDateTime(sampai.Text).AddDays(1)
+                              select p);
+
+                    Weight = st.Sum(p => p.StockProductDJ.StockProductDJ_CharProduct.NettoWeight);
+
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+
+                    if (!Response.IsClientConnected) break;
+
+                    //Sub-Header
+
+                    TableRow tr = new TableRow();
+                    TableCell td;
+
+                    td = new TableCell();
+                    td.Text = "<p>" + index++.ToString() + ".</p>";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Key.Nama;
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Count().ToString();
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.TotalBayar.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.Discount.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.DiscountProgram.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountGift.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountRound.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Butir.ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Carat.ToString("N3");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Weight.ToString("N2");
+                    tr.Cells.Add(td);
+
+
+                    tb.Rows.Add(tr);
+
+                    TotalHarga += r.Sum(p => p.TotalBayar.Value);
+                    TotalDiscount += r.Sum(p => p.Discount.Value);
+                    TotalDiscountProgram += r.Sum(p => p.DiscountProgram.Value);
+                    TotalDiscountGift += r.Sum(p => p.DiscountGift.Value);
+                    TotalDiscountRound += r.Sum(p => p.DiscountRound.Value);
+                    TotalButir += Butir;
+                    TotalCarat += Carat;
+                    TotalNetWeight += Weight;
+                }
+
+                TableRow tr2 = new TableRow();
+                TableCell td2;
+
+                td2 = new TableCell();
+                td2.Text = "<b>Total</b>";
+                td2.ColumnSpan = 2;
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + rs.Count().ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalHarga).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscount / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountProgram / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountGift).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountRound).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalButir).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalCarat).ToString("N3") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalNetWeight).ToString("N2") + "</b>";
+                tr2.Cells.Add(td2);
+
+                tb.Rows.Add(tr2);
+            }
+        }
+        else if (GroupBy == 4)
+        {
+            var rslt = rs.GroupBy(p => p.StockProductDJ.StockProductDJ_PricingSegmen.CharProductSegmen);
+            if (rs.Count() > 0)
+            {
+                decimal TotalHarga = 0m;
+                decimal TotalDiscount = 0m;
+                decimal TotalDiscountProgram = 0m;
+                decimal TotalDiscountGift = 0m;
+                decimal TotalDiscountRound = 0m;
+                decimal TotalButir = 0m;
+                decimal TotalCarat = 0m;
+                decimal TotalNetWeight = 0m;
+                int prev = 0;
+                int index = 1;
+                foreach (var r in rslt)
+                {
+                    decimal Butir = 0m;
+                    decimal Carat = 0m;
+                    decimal Weight = 0m;
+                    int Qty = 1;
+
+                    var st = (from p in db.SalesOrderDJ
+                              where p.StockProductDJ.StockProductDJ_PricingSegmen.ProductSegmen == r.Key.ID
+                              && p.SalesOrder.Tgl >= Convert.ToDateTime(dari.Text) && p.SalesOrder.Tgl <= Convert.ToDateTime(sampai.Text).AddDays(1)
+                              select p);
+
+                    Weight = st.Sum(p => p.StockProductDJ.StockProductDJ_CharProduct.NettoWeight);
+
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+
+                    if (!Response.IsClientConnected) break;
+
+                    //Sub-Header
+
+                    TableRow tr = new TableRow();
+                    TableCell td;
+
+                    td = new TableCell();
+                    td.Text = "<p>" + index++.ToString() + ".</p>";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Key.Nama;
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Count().ToString();
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.TotalBayar.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.Discount.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.DiscountProgram.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountGift.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountRound.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Butir.ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Carat.ToString("N3");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Weight.ToString("N2");
+                    tr.Cells.Add(td);
+
+
+                    tb.Rows.Add(tr);
+
+                    TotalHarga += r.Sum(p => p.TotalBayar.Value);
+                    TotalDiscount += r.Sum(p => p.Discount.Value);
+                    TotalDiscountProgram += r.Sum(p => p.DiscountProgram.Value);
+                    TotalDiscountGift += r.Sum(p => p.DiscountGift.Value);
+                    TotalDiscountRound += r.Sum(p => p.DiscountRound.Value);
+                    TotalButir += Butir;
+                    TotalCarat += Carat;
+                    TotalNetWeight += Weight;
+                }
+
+                TableRow tr2 = new TableRow();
+                TableCell td2;
+
+                td2 = new TableCell();
+                td2.Text = "<b>Total</b>";
+                td2.ColumnSpan = 2;
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + rs.Count().ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalHarga).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscount / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountProgram / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountGift).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountRound).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalButir).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalCarat).ToString("N3") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalNetWeight).ToString("N2") + "</b>";
+                tr2.Cells.Add(td2);
+
+                tb.Rows.Add(tr2);
+            }
+        }
+        else if (GroupBy == 5)
+        {
+            var rslt = rs.GroupBy(p => p.SalesOrder.DataSales);
+            if (rs.Count() > 0)
+            {
+                decimal TotalHarga = 0m;
+                decimal TotalDiscount = 0m;
+                decimal TotalDiscountProgram = 0m;
+                decimal TotalDiscountGift = 0m;
+                decimal TotalDiscountRound = 0m;
+                decimal TotalButir = 0m;
+                decimal TotalCarat = 0m;
+                decimal TotalNetWeight = 0m;
+                int prev = 0;
+                int index = 1;
+                foreach (var r in rslt)
+                {
+                    decimal Butir = 0m;
+                    decimal Carat = 0m;
+                    decimal Weight = 0m;
+                    int Qty = 1;
+
+                    var st = (from p in db.SalesOrderDJ
+                              where p.SalesOrder.IDSales == r.Key.ID
+                              && p.SalesOrder.Tgl >= Convert.ToDateTime(dari.Text) && p.SalesOrder.Tgl <= Convert.ToDateTime(sampai.Text).AddDays(1)
+                              select p);
+
+                    Weight = st.Sum(p => p.StockProductDJ.StockProductDJ_CharProduct.NettoWeight);
+
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1A.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone1B.Where(z=>z.StatusTerpasang==1).Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone2.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone3.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone4.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+                    try
+                    {
+                        Butir += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalButir)));
+                        Carat += Convert.ToDecimal(st.Sum(p => p.StockProductDJ.StockProductDJ_Stone5.Sum(s => s.TotalCarat)));
+                    }
+                    catch (Exception ex) { }
+
+                    if (!Response.IsClientConnected) break;
+
+                    //Sub-Header
+
+                    TableRow tr = new TableRow();
+                    TableCell td;
+
+                    td = new TableCell();
+                    td.Text = "<p>" + index++.ToString() + ".</p>";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Key.Nama;
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Count().ToString();
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.TotalBayar.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.Discount.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = (r.Sum(p => p.DiscountProgram.Value) / r.Count()).ToString("N0") + "%";
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountGift.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = r.Sum(p => p.DiscountRound.Value).ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Butir.ToString("N0");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Carat.ToString("N3");
+                    tr.Cells.Add(td);
+
+                    td = new TableCell();
+                    td.Text = Weight.ToString("N2");
+                    tr.Cells.Add(td);
+
+
+                    tb.Rows.Add(tr);
+
+                    TotalHarga += r.Sum(p => p.TotalBayar.Value);
+                    TotalDiscount += r.Sum(p => p.Discount.Value);
+                    TotalDiscountProgram += r.Sum(p => p.DiscountProgram.Value);
+                    TotalDiscountGift += r.Sum(p => p.DiscountGift.Value);
+                    TotalDiscountRound += r.Sum(p => p.DiscountRound.Value);
+                    TotalButir += Butir;
+                    TotalCarat += Carat;
+                    TotalNetWeight += Weight;
+                }
+
+                TableRow tr2 = new TableRow();
+                TableCell td2;
+
+                td2 = new TableCell();
+                td2.Text = "<b>Total</b>";
+                td2.ColumnSpan = 2;
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + rs.Count().ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalHarga).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscount / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountProgram / rs.Count()).ToString("N0") + " %</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountGift).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalDiscountRound).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalButir).ToString("N0") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalCarat).ToString("N3") + "</b>";
+                tr2.Cells.Add(td2);
+
+                td2 = new TableCell();
+                td2.Text = "<b>" + Convert.ToDecimal(TotalNetWeight).ToString("N2") + "</b>";
+                tr2.Cells.Add(td2);
+
+                tb.Rows.Add(tr2);
+            }
+        }
+    }
+
+    protected void fillFilter()
+    {
+        if (App.Refresh(this))
+        {
+            dari.Text = Request.QueryString["dari"];
+            sampai.Text = Request.QueryString["sampai"];
+            groupby.SelectedValue = Request.QueryString["groupby"];
+            tipelokasi.SelectedValue = Request.QueryString["tipelokasi"];
+            lokasi.SelectedValue = Request.QueryString["lokasi"];
+        }
+    }
+
+    protected void refreshPage(object sender, EventArgs e)
+    {
+        string href = App.RefreshURL(this);
+        href += "&dari=" + dari.Text;
+        href += "&sampai=" + sampai.Text;
+        href += "&groupby=" + groupby.SelectedValue;
+        href += "&tipelokasi=" + tipelokasi.SelectedValue;
+        href += "&lokasi=" + lokasi.SelectedValue;
+
+        Response.Redirect(href);
+    }
+
+    protected void Print(object sender, EventArgs e)
+    {
+        string href = "InvoiceDJ_Rekap_Print.aspx?id=1";
+        
+        href += "&dari=" + dari.Text;
+        href += "&sampai=" + sampai.Text;
+        href += "&groupby=" + groupby.SelectedValue;
+        href += "&tipelokasi=" + tipelokasi.SelectedValue;
+        href += "&lokasi=" + lokasi.SelectedValue;
+        Response.Redirect(href);
+    }
+
+    protected void FillLokasi(object sender, EventArgs e)
+    {
+        int Tipe = Convert.ToInt32(tipelokasi.SelectedValue);
+        if (Tipe == 1 || Tipe == 2)
+        {
+            lokasi.Items.Clear();
+            DLC.LocationList(lokasi, Tipe);
+        }
+        lokasi.Focus();
+    }
+
+    protected void Export(object sender, EventArgs e)
+    {
+        string href = "InvoiceDJ_Rekap_Export.aspx?id=1";
+
+        href += "&dari=" + dari.Text;
+        href += "&sampai=" + sampai.Text;
+        href += "&groupby=" + groupby.SelectedValue;
+        href += "&tipelokasi=" + tipelokasi.SelectedValue;
+        href += "&lokasi=" + lokasi.SelectedValue;
+
+        Response.Redirect(href);
+    }
+
+}

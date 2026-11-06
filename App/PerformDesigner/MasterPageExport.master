@@ -1,0 +1,37 @@
+﻿<%@ master language="C#" autoeventwireup="true" codefile="MasterPageExport.master.cs" inherits="MasterPage" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.css" />
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.datepicker.css" />
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.font.css" />
+	<link rel="stylesheet" href="/UI/CSS/custom.css" />
+
+	<!-- JavaScript -->
+	<script type="text/javascript" src="/UI/JS/jquery.js"></script>
+	<script type="text/javascript" src="/UI/JS/bootstrap.js"></script>
+	<script type="text/javascript" src="/UI/JS/datepicker.js"></script>
+	<script type="text/javascript" src="/UI/JS/custom.js"></script>
+</head>
+<body class="page">
+	
+	<!-- Content -->
+	<div class="container">
+		<h1>
+			<small id="module" runat="server" />
+			<br />
+			<asp:contentplaceholder id="h1" runat="server" />
+			<small>
+				<asp:contentplaceholder id="h1_st" runat="server" />
+			</small>
+		</h1>
+		<asp:contentplaceholder id="content" runat="server" />
+	</div>
+</body>
+</html>

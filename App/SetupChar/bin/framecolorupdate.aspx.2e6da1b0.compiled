@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Information/FrameColorUpdate.aspx" hash="fffffff60a01aa96" filehash="896522dcbddc3f89" flags="110000" assembly="App_Web_framecolorupdate.aspx.2e6da1b0" type="ASP.page_information_framecolorupdate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Information/FrameColorUpdate.aspx" />
+        <filedep name="/SetupChar/Page/Information/FrameColorUpdate.aspx.cs" />
+    </filedeps>
+</preserve>

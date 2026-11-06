@@ -1,0 +1,97 @@
+﻿<%@ master language="C#" autoeventwireup="true" codefile="MasterPage.master.cs" inherits="MasterPage" %>
+
+<%@ register src="Menu.ascx" tagname="Menu" tagprefix="uc1" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.css" />
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.datepicker.css" />
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.font.css" />
+	<link rel="stylesheet" href="/UI/CSS/custom.css" />
+    <link rel="stylesheet" href="/UI/Assets/select2-3.5.3/select2.css" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="/UI/CSS/sg.css" />
+    <link rel="stylesheet" href="/UI/CSS/AdminLTE.min.css" />
+
+	<!-- JavaScript -->
+	<script type="text/javascript" src="/UI/JS/jquery.js"></script>
+	<script type="text/javascript" src="/UI/JS/bootstrap.js"></script>
+	<script type="text/javascript" src="/UI/JS/datepicker.js"></script>
+	<script type="text/javascript" src="/UI/JS/custom.js"></script>
+    <script type="text/javascript" src="/UI/Assets/select2-3.5.3/select2.js"></script>
+    
+    <script>
+        $.fn.ready(function () {
+            // Spoiler
+            $(document).on('click', '.spoiler-btn', function (e) {
+                e.preventDefault()
+                $(this).parent().children('.spoiler-body').collapse('toggle')
+            });
+        });
+    </script>
+</head>
+<body class="page">
+	<!-- Menu -->
+	<div class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="collapse navbar-collapse">
+				<uc1:menu id="menu" runat="server" />
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a runat="server" href="~/?so=1">
+							<span class="visible-sm visible-md visible-lg"><i class="icon-home icon-large" title="Homepage"></i></span>
+							<span class="visible-xs">Homepage</span>
+						</a>
+					</li>
+					<li>
+						<a runat="server" href="~/?so=2">
+							<span class="visible-sm visible-md visible-lg"><i class="icon-signout icon-large" title="Sign-Out"></i></span>
+							<span class="visible-xs">Sign-Out</span>
+						</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<!-- Content -->
+	<div class="container">
+		<h1>
+			<small id="module" runat="server" />
+			<br />
+			<asp:contentplaceholder id="h1" runat="server" />
+			<small>
+				<asp:contentplaceholder id="h1_st" runat="server" />
+			</small>
+		</h1>
+		<asp:contentplaceholder id="content" runat="server" />
+        <br />
+        <br />
+	</div>
+
+	<!-- Sistem Notifikasi -->
+	<div id="callout" runat="server" class="alert alert-success">
+		<i class="icon-spinner icon-spin icon-large"></i>
+		Proses Berhasil
+	</div>
+	<asp:literal id="callout_script" runat="server" visible="false">
+		<script type="text/javascript">
+			$('#callout').show();
+			$('#callout').fadeOut(5000);
+		</script>
+	</asp:literal>
+</body>
+</html>

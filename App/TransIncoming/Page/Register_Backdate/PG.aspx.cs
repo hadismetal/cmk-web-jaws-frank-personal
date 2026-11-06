@@ -1,0 +1,469 @@
+﻿using System;
+using System.Linq;
+using System.Linq.Dynamic;
+using System.Web.UI.WebControls;
+
+public partial class PG : System.Web.UI.Page
+{
+    private Map_DB _db;
+
+    private Map_DB db
+    {
+        get
+        {
+            if (_db == null)
+                _db = new Map_DB();
+            return _db;
+        }
+    }
+
+    public override void Dispose()
+    {
+        if (db != null)
+            db.Dispose();
+        base.Dispose();
+    }
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        App.Protect();
+        App.ProtectRole(Role.Operator);
+
+        if (!IsPostBack)
+        {
+            tb.Visible = false;
+
+            //DLC
+            DLC.CompanyBrand(brand);
+            DLC.LocationType(ddl_from, ddl_to);
+
+            //Generate
+            fillFilter();
+            if (App.Refresh(this)) fillTable(sender, e);
+        }
+    }
+
+    //Filter
+    protected void refreshPage(object sender, EventArgs e)
+    {
+        string href = App.RefreshURL(this);
+
+        //Customize-Qstr
+        href += "&brand=" + brand.SelectedValue;
+        href += "&from=" + ddl_from.SelectedValue;
+        href += "&to=" + ddl_to.SelectedValue;
+        href += "&keyword=" + kw.Text;
+        href += "&keyfrom=" + txt_from.Text.Trim();
+        href += "&keyto=" + txt_to.Text.Trim();
+
+        Response.Redirect(href);
+    }
+    protected void fillFilter()
+    {
+        if (App.Refresh(this))
+        {
+            //DLC.CompanyBrand(brand);
+            //DLC.LocationType(ddl_from, ddl_to);
+
+            brand.SelectedValue = Request.QueryString["brand"];
+            ddl_from.SelectedValue = Request.QueryString["from"];
+            ddl_to.SelectedValue = Request.QueryString["to"];
+
+            txt_from.Text = Request.QueryString["keyfrom"];
+            txt_to.Text = Request.QueryString["keyto"];
+        }
+
+        int UserID = App.UserID;
+        var d = from p in db.DataAdminSales
+                where p.IDUser == UserID
+                select p;
+        if (d.Count() > 0)
+        {
+            txt_to.Enabled = false;
+
+            var x = d.First();
+            string href = "";
+
+            if (x.TipeLokasi == 1)
+            {
+                ddl_to.Items.Clear();
+                ddl_to.Items.Add(new ListItem("Outlet", "1"));
+            }
+            else if (x.TipeLokasi == 2)
+            {
+                ddl_to.Items.Clear();
+                ddl_to.Items.Add(new ListItem("Exhibition", "2"));
+            }
+        }
+
+        var f = from p in db.DataSK
+                where p.IDUser == UserID
+                select p;
+        if (f.Count() > 0)
+        {
+            txt_to.Enabled = false;
+
+            var x = f.First();
+            string href = "";
+
+            if (x.TipeLokasi == 0)
+            {
+                ddl_to.Items.Clear();
+                ddl_to.Items.Add(new ListItem("Warehouse", "0"));
+            }
+            else if (x.TipeLokasi == 1)
+            {
+                ddl_to.Items.Clear();
+                ddl_to.Items.Add(new ListItem("Outlet", "1"));
+            }
+            else if (x.TipeLokasi == 2)
+            {
+                ddl_to.Items.Clear();
+                ddl_to.Items.Add(new ListItem("Exhibition", "2"));
+            }
+        }
+    }
+
+    //Display Table
+    protected void fillTable(object sender, EventArgs e)
+    {
+        tb.Visible = true;
+
+        
+        //WHERE
+        string w = "1=1";
+        if (brand.SelectedIndex > 0) w += " AND IDBrand = " + brand.SelectedValue;
+        //if (ddl_from.SelectedIndex > 0) w += " AND TipeAsal = " + ddl_from.SelectedValue;
+        //if (ddl_to.SelectedIndex > 0) w += " AND TipeTujuan = " + ddl_to.SelectedValue;
+
+        int vB = Convert.ToInt32(brand.SelectedValue);
+        int vF = Convert.ToInt32(ddl_from.SelectedValue);
+        int vT = Convert.ToInt32(ddl_to.SelectedValue);
+        string kF = txt_from.Text.Trim();
+        string kT = txt_to.Text.Trim();
+
+        //SELECT
+        //SELECT
+        var rs = from p in db.StockOutgoingPG.Where(w)
+                 where p.StatusTransOut == 2
+                 && !(from z in db.StockIncomingPG
+                      where z.StatusTransIn == 3
+                      select z.IDOutgoing).Contains(p.ID)// Approved
+                 select p;
+
+        string keyword = kw.Text.Trim();
+        if (keyword != "")
+            rs = rs.Where(p => p.Nomor.Contains(keyword));
+
+        int UserID = App.UserID;
+        var d = from p in db.DataAdminSales
+                where p.IDUser == UserID
+                select p;
+        if (d.Count() > 0)
+        {
+            /*rs = from p in rs
+                 where (p.TipeAsal == d.First().TipeLokasi && p.IDAsal == d.First().IDLokasi)
+                 || (p.TipeTujuan == d.First().TipeLokasi && p.IDTujuan == d.First().IDLokasi)
+                 select p;*/
+
+            rs = from p in rs
+                 where (p.TipeTujuan == d.First().TipeLokasi && p.IDTujuan == d.First().IDLokasi)
+                 select p;
+        }
+
+        var f = from p in db.DataSK
+                where p.IDUser == UserID
+                select p;
+        if (f.Count() > 0)
+        {
+
+            rs = from p in rs
+                 where (p.TipeTujuan == f.First().TipeLokasi && p.IDTujuan == f.First().IDLokasi)
+                 select p;
+        }
+
+        if (vF == 0)
+        {
+            rs = from p in rs
+                 join q in db.LocWarehouse on p.IDAsal equals q.ID
+                 where p.TipeAsal == 0
+                 select p;
+
+            if (kF != "")
+            {
+                rs = from p in rs
+                     join q in db.LocWarehouse on p.IDAsal equals q.ID
+                     where p.TipeAsal == 0 && q.Nama.Contains(kF)
+                     select p;
+            }
+        }
+        else if (vF == 1)
+        {
+            rs = from p in rs
+                 join q in db.LocOutlet on p.IDAsal equals q.ID
+                 where p.TipeAsal == 1
+                 select p;
+
+            if (kF != "")
+            {
+                rs = from p in rs
+                     join q in db.LocOutlet on p.IDAsal equals q.ID
+                     where p.TipeAsal == 1 && q.Nama.Contains(kF)
+                     select p;
+            }
+        }
+        else if (vF == 2)
+        {
+            rs = from p in rs
+                 join q in db.LocExhibition on p.IDAsal equals q.ID
+                 where p.TipeAsal == 2
+                 select p;
+
+            if (kF != "")
+            {
+                rs = from p in rs
+                     join q in db.LocExhibition on p.IDAsal equals q.ID
+                     where p.TipeAsal == 2 && q.Nama.Contains(kF)
+                     select p;
+            }
+        }
+
+        if (vT == 0)
+        {
+            rs = from p in rs
+                 join q in db.LocWarehouse on p.IDTujuan equals q.ID
+                 where p.TipeTujuan == 0
+                 select p;
+
+            if (kT != "")
+            {
+                rs = from p in rs
+                     join q in db.LocWarehouse on p.IDTujuan equals q.ID
+                     where p.TipeTujuan == 0 && q.Nama.Contains(kT)
+                     select p;
+            }
+        }
+        else if (vT == 1)
+        {
+            rs = from p in rs
+                 join q in db.LocOutlet on p.IDTujuan equals q.ID
+                 where p.TipeTujuan == 1
+                 select p;
+
+            if (kT != "")
+            {
+                rs = from p in rs
+                     join q in db.LocOutlet on p.IDTujuan equals q.ID
+                     where p.TipeTujuan == 1 && q.Nama.Contains(kT)
+                     select p;
+            }
+        }
+        else if (vT == 2)
+        {
+            rs = from p in rs
+                 join q in db.LocExhibition on p.IDTujuan equals q.ID
+                 where p.TipeTujuan == 2
+                 select p;
+
+            if (kT != "")
+            {
+                rs = from p in rs
+                     join q in db.LocExhibition on p.IDTujuan equals q.ID
+                     where p.TipeTujuan == 2 && q.Nama.Contains(kT)
+                     select p;
+            }
+        }
+
+        rs = rs.OrderBy(p => p.OperatorTgl);
+
+        //COUNT FROM RESULT
+        int rsc = rs.Count();
+
+        bool isValidFromTo = true;
+
+        //NO-RESULT FROM RESULT
+        if (rsc == 0) { App.TableNoResult(tb); isValidFromTo = false; }
+
+        //NO-RESULT
+        //if (rs.Count() == 0) App.TableNoResult(tb);
+
+        //RESULT
+        int prev = 0;
+        int index = 1;
+
+        if (isValidFromTo)
+        {
+            foreach (var item in rs)
+            {
+                var rsI = from p in db.StockOutgoingPG_Product
+                          where p.IDForm == item.ID
+                          select p;
+
+                if (!Response.IsClientConnected) break;
+
+                //Sub-Header
+                //if (prev != r1.IDBrand)
+                //{
+                //    Sub_Header(vT, r1.ID);
+                //    prev = r1.IDBrand;
+                //}
+
+                TableRow tr = new TableRow();
+                TableCell td;
+
+                td = new TableCell();
+                td.Text = TD_HyperLink(item.ID);
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = "<p>" + index++.ToString() + ".</p>";
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = item.Nomor;
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = Str.HtmlBreak(item.Keterangan);
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = rsI.Count().ToString(); // Qty
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = DL.LocationType(item.TipeAsal) + TD_Nama(item.TipeAsal, item.IDAsal) + TD_Addr(item.TipeAsal, item.IDAsal) + TD_Group(item.TipeAsal, item.IDAsal);
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = "&nbsp;&nbsp;&nbsp;&rarr;&nbsp;&nbsp;&nbsp;";
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = DL.LocationType(item.TipeTujuan) + TD_Nama(item.TipeTujuan, item.IDTujuan) + TD_Addr(item.TipeTujuan, item.IDTujuan) + TD_Group(item.TipeTujuan, item.IDTujuan);
+                tr.Cells.Add(td);
+
+                td = new TableCell();
+                td.Text = Str.Tgl(item.Tgl);
+                tr.Cells.Add(td);
+
+                tb.Rows.Add(tr);
+            }
+        }
+
+    }
+    protected void Sub_Header(int t, int r)
+    {
+        //TableRow tr = new TableRow();
+        //TableCell td;
+
+        //tr.CssClass = "sub-header";
+        //string x = string.Empty;
+
+        //if (t == 0)
+        //{
+        //    var rs = db.LocWarehouse.SingleOrDefault(p => p.ID == r);
+        //    x += "<br />";
+        //    x += rs.CompanyBrand.Nama + " (" + rs.CompanyBrand.NamaKode + ")";
+        //}
+        //else if (t == 1)
+        //{
+        //    var rs = db.LocOutlet.SingleOrDefault(p => p.ID == r);
+        //    x += "<br />";
+        //    x += rs.CompanyBrand.Nama + " (" + rs.CompanyBrand.NamaKode + ")";
+        //}
+        //else if (t == 2)
+        //{
+        //    var rs = db.LocExhibition.SingleOrDefault(p => p.ID == r);
+        //    x += "<br />";
+        //    x += rs.CompanyBrand.Nama + " (" + rs.CompanyBrand.NamaKode + ")";
+        //}
+
+        //td = new TableCell();
+        //td.Text = x;
+        //td.CssClass = "text-lg text-warning";
+        //td.ColumnSpan = App.TableColspan(tb);
+        //tr.Cells.Add(td);
+
+        //tb.Rows.Add(tr);
+    }
+    protected string TD_HyperLink(int id)
+    {
+        string x = string.Empty;
+
+        x += "<a class=\"btn btn-info\" href=\"PG_Form.aspx?id=" + id + "\">";
+        x += "  <i class=\"icon-ok\"></i> ";
+        x += "  Select";
+        x += "</a>";
+
+        return x;
+    }
+    protected string TD_Nama(int t, int r)
+    {
+        string x = string.Empty;
+
+        if (t == 0)
+        {
+            var rs = db.LocWarehouse.SingleOrDefault(p => p.ID == r);
+            x += "<p><strong>" + rs.Nama + "</strong></p>";
+        }
+        else if (t == 1)
+        {
+            var rs = db.LocOutlet.SingleOrDefault(p => p.ID == r);
+            x += "<p><strong>" + rs.Nama + "</strong></p>";
+        }
+        else if (t == 2)
+        {
+            var rs = db.LocExhibition.SingleOrDefault(p => p.ID == r);
+            x += "<p><strong>" + rs.Nama + "</strong></p>";
+        }
+
+        return x;
+    }
+    protected string TD_Addr(int t, int r)
+    {
+        string x = string.Empty;
+
+        if (t == 0)
+        {
+            var rs = db.LocWarehouse.SingleOrDefault(p => p.ID == r);
+            if (rs.AddrAlamat != "" && rs.AddrAlamat != null)
+                x += "<p class=\"text-sm\">" + Str.HtmlBreak(rs.AddrAlamat) + "</p>";
+        }
+        else if (t == 1)
+        {
+            var rs = db.LocOutlet.SingleOrDefault(p => p.ID == r);
+            if (rs.AddrAlamat != "" && rs.AddrAlamat != null)
+                x += "<p class=\"text-sm\">" + Str.HtmlBreak(rs.AddrAlamat) + "</p>";
+        }
+        else if (t == 2)
+        {
+            var rs = db.LocExhibition.SingleOrDefault(p => p.ID == r);
+            if (rs.AddrAlamat != "" && rs.AddrAlamat != null)
+                x += "<p class=\"text-sm\">" + Str.HtmlBreak(rs.AddrAlamat) + "</p>";
+        }
+
+        return x;
+    }
+    protected string TD_Group(int t, int r)
+    {
+        string x = string.Empty;
+
+        if (t == 0)
+        {
+            var rs = db.LocWarehouse.SingleOrDefault(p => p.ID == r);
+            x += "<p class=\"text-info\">" + rs.LocWarehouseGroup.NamaKode + "</p>";
+        }
+        else if (t == 1)
+        {
+            var rs = db.LocOutlet.SingleOrDefault(p => p.ID == r);
+            x += "<p class=\"text-info\">" + rs.LocOutletGroup.NamaKode + "</p>";
+        }
+        else if (t == 2)
+        {
+            var rs = db.LocExhibition.SingleOrDefault(p => p.ID == r);
+            x += "<p class=\"text-info\">" + rs.LocExhibitionGroup.NamaKode + "</p>";
+        }
+
+        return x;
+    }
+}

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Business/GoldModelCreate.aspx" hash="fffffff60a01aa96" filehash="38a881d4094034ab" flags="110000" assembly="App_Web_goldmodelcreate.aspx.f388c678" type="ASP.page_business_goldmodelcreate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Business/GoldModelCreate.aspx" />
+        <filedep name="/SetupChar/Page/Business/GoldModelCreate.aspx.cs" />
+    </filedeps>
+</preserve>

@@ -1,0 +1,414 @@
+﻿using System;
+using System.Linq;
+
+public partial class Page_Approval_Sales_Void : System.Web.UI.Page
+{
+    private Map_DB _db;
+
+    private Map_DB db
+    {
+        get
+        {
+            if (_db == null)
+                _db = new Map_DB();
+            return _db;
+        }
+    }
+
+    private Map_CS _cs;
+
+    private Map_CS cs
+    {
+        get
+        {
+            if (_cs == null)
+                _cs = new Map_CS();
+            return _cs;
+        }
+    }
+
+    public override void Dispose()
+    {
+        if (db != null)
+            db.Dispose();
+        if (cs != null)
+            cs.Dispose();
+        base.Dispose();
+    }
+    App price = new App();
+
+    decimal Setting = 0m;
+
+    protected int myID { get { return App.QueryInt(this); } }
+
+    //Exception
+    protected void DeleteError(string sebab)
+    {
+        Response.Redirect("Sales.aspx");
+    }
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        App.Protect();
+        App.ProtectRole(Role.Manager);
+
+        var d = db.SalesOrder.SingleOrDefault(p => p.ID == myID);
+        if (d == null) App.DataNull(this);
+        else
+        {
+            //Delete
+            voidProcess(d);
+
+            d.StatusVoid = true;
+            db.SubmitChanges();
+
+            //Redirect
+            Response.Redirect("Sales_Order.aspx?d=1");
+        }
+    }
+
+    //Delete
+    protected void voidProcess(SalesOrder d)
+    {
+        d.TglVoid = DateTime.Today;
+        db.SubmitChanges();
+
+        var dj = d.SalesOrderDJ;
+        var pg = d.SalesOrderPG;
+        var gj = d.SalesOrderGJ;
+        var ld = d.SalesOrderLD;
+        var pc = d.SalesOrderPackaging;
+        var svr = d.SalesOrderSouvenir;
+
+        foreach(var r in d.SalesReceipt)
+        {
+            foreach(var rslt in r.SalesReceiptDetail)
+            {
+                decimal Pembayaran = 0m;
+                Pembayaran = rslt.Nominal.Value * -1;
+
+                SalesReceiptDetail n = new SalesReceiptDetail();
+
+                n.IDBankIssuer = rslt.IDBankIssuer;
+                n.IDCard = rslt.IDCard;
+                n.CCName = rslt.CCName;
+                n.CCNumber = rslt.CCNumber;
+                n.EDCList = rslt.EDCList;
+                n.IDEDC = rslt.IDEDC;
+                n.IDPaymentType = rslt.IDPaymentType;
+                n.IDProgram = rslt.IDProgram;
+                n.IDSalesReceipt = rslt.IDSalesReceipt;
+                n.MDR = rslt.MDR;
+                n.Nominal = Pembayaran;
+                n.OperatorNama = rslt.OperatorNama;
+                n.OperatorTgl = rslt.OperatorTgl;
+				
+                db.SalesReceiptDetail.InsertOnSubmit(n);
+                db.SubmitChanges();
+            }
+        }
+
+        foreach (var r in dj)
+        {
+            var x = db.StockProductDJ.SingleOrDefault(p => p.ID == r.IDProduct);
+            if (x != null)
+            {
+                // Ledger 
+                StockLedgerDJ l = new StockLedgerDJ();
+
+                // Value (See Library DB - Ledger for Value and Remark)
+                decimal Value = 1; // 1 : in , -1 : out
+                int Remark = 10; // See Library DB - Ledger
+                string Keterangan = r.Invoice; // Commonly filled by document number or id 
+                if (Keterangan.Trim() == "") Keterangan = DL.LedgerRemark(Remark); // dont change!
+
+                string Lokasi = "";
+                if (d.TipeLokasi == 1)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocOutlet WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+                else if (d.TipeLokasi == 2)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocExhibition WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+
+                //Input
+                l.IDProduct = r.IDProduct;
+                l.TipeLokasi = d.TipeLokasi.Value;
+                l.IDLokasi = d.IDLokasi.Value;
+                l.NamaLokasi = Lokasi;
+                l.Value = Value;
+                l.Remark = Remark;
+                l.Keterangan = Keterangan;
+
+                //User-Info
+                l.Operator = App.UserNama;
+                l.OperatorTgl = DateTime.Now;
+
+                //Commit
+                db.StockLedgerDJ.InsertOnSubmit(l);
+                db.SubmitChanges();
+
+                x.StatusPenjualan = 0;
+                x.StockActualDJ.InHand = 1;
+                db.SubmitChanges();
+            }
+        }
+
+        foreach (var r in pg)
+        {
+            var x = db.StockProductPG.SingleOrDefault(p => p.ID == r.IDProduct);
+            if (x != null)
+            {
+                // Ledger 
+                StockLedgerPG l = new StockLedgerPG();
+
+                // Value (See Library DB - Ledger for Value and Remark)
+                decimal Value = 1; // 1 : in , -1 : out
+                int Remark = 10; // See Library DB - Ledger
+                string Keterangan = r.Invoice; // Commonly filled by document number or id 
+                if (Keterangan.Trim() == "") Keterangan = DL.LedgerRemark(Remark); // dont change!
+
+                string Lokasi = "";
+                if (d.TipeLokasi == 1)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocOutlet WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+                else if (d.TipeLokasi == 2)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocExhibition WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+
+                //Input
+                l.IDProduct = r.IDProduct;
+                l.TipeLokasi = d.TipeLokasi.Value;
+                l.IDLokasi = d.IDLokasi.Value;
+                l.NamaLokasi = Lokasi;
+                l.Value = Value;
+                l.Remark = Remark;
+                l.Keterangan = Keterangan;
+
+                //User-Info
+                l.Operator = App.UserNama;
+                l.OperatorTgl = DateTime.Now;
+
+                //Commit
+                db.StockLedgerPG.InsertOnSubmit(l);
+                db.SubmitChanges();
+
+                x.StatusPenjualan = 0;
+                x.StockActualPG.InHand = 1;
+                db.SubmitChanges();
+            }
+        }
+
+        foreach (var r in gj)
+        {
+            var x = db.StockProductGJ.SingleOrDefault(p => p.ID == r.IDProduct);
+            if (x != null)
+            {
+                // Ledger 
+                StockLedgerGJ l = new StockLedgerGJ();
+
+                // Value (See Library DB - Ledger for Value and Remark)
+                decimal Value = 1; // 1 : in , -1 : out
+                int Remark = 10; // See Library DB - Ledger
+                string Keterangan = r.Invoice; // Commonly filled by document number or id 
+                if (Keterangan.Trim() == "") Keterangan = DL.LedgerRemark(Remark); // dont change!
+
+                string Lokasi = "";
+                if (d.TipeLokasi == 1)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocOutlet WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+                else if (d.TipeLokasi == 2)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocExhibition WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+
+                //Input
+                l.IDProduct = r.IDProduct;
+                l.TipeLokasi = d.TipeLokasi.Value;
+                l.IDLokasi = d.IDLokasi.Value;
+                l.NamaLokasi = Lokasi;
+                l.Value = Value;
+                l.Remark = Remark;
+                l.Keterangan = Keterangan;
+
+                //User-Info
+                l.Operator = App.UserNama;
+                l.OperatorTgl = DateTime.Now;
+
+                //Commit
+                db.StockLedgerGJ.InsertOnSubmit(l);
+                db.SubmitChanges();
+
+                x.StatusPenjualan = 0;
+                x.StockActualGJ.InHand = 1;
+                db.SubmitChanges();
+            }
+        }
+
+        foreach (var r in ld)
+        {
+            var x = db.StockProductLD_Stone1B.SingleOrDefault(p => p.ID == r.IDProduct);
+            if (x != null)
+            {
+                // Ledger 
+                StockLedgerLD l = new StockLedgerLD();
+
+                // Value (See Library DB - Ledger for Value and Remark)
+                decimal Value = 1; // 1 : in , -1 : out
+                int Remark = 10; // See Library DB - Ledger
+                string Keterangan = r.Invoice; // Commonly filled by document number or id 
+                if (Keterangan.Trim() == "") Keterangan = DL.LedgerRemark(Remark); // dont change!
+
+                string Lokasi = "";
+                if (d.TipeLokasi == 1)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocOutlet WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+                else if (d.TipeLokasi == 2)
+                    Lokasi = Db.SingleString("SELECT Nama FROM LocExhibition WHERE ID=" + d.IDLokasi.Value, Db.Cnn_DB);
+
+                //Input
+                l.IDProduct = r.IDProduct;
+                l.TipeLokasi = d.TipeLokasi.Value;
+                l.IDLokasi = d.IDLokasi.Value;
+                l.NamaLokasi = Lokasi;
+                l.Value = Value;
+                l.Remark = Remark;
+                l.Keterangan = Keterangan;
+
+                //User-Info
+                l.Operator = App.UserNama;
+                l.OperatorTgl = DateTime.Now;
+
+                //Commit
+                db.StockLedgerLD.InsertOnSubmit(l);
+                db.SubmitChanges();
+
+                x.StatusPenjualan = 0;
+                x.StockActualLD_Stone1B.InHand = 1;
+                db.SubmitChanges();
+            }
+        }
+
+        foreach (var r in pc)
+        {
+            var x = db.StockActualPackaging.SingleOrDefault(p => p.ID == r.IDProduct && p.TipeLokasi == d.TipeLokasi && p.IDLokasi == d.IDLokasi);
+            if (x != null)
+            {
+                x.InHand = x.InHand + r.Qty.Value;
+                db.SubmitChanges();
+            }
+        }
+
+        foreach (var r in svr)
+        {
+            if (r.TipeProduct == 0)
+            {
+                var x = db.StockActualSouvenir.SingleOrDefault(p => p.ID == r.IDProduct && p.TipeLokasi == d.TipeLokasi && p.IDLokasi == d.IDLokasi);
+                if (x != null)
+                {
+                    x.InHand = x.InHand + r.Qty.Value;
+                    db.SubmitChanges();
+                }
+            }
+            else if (r.TipeProduct == 1)
+            {
+                var x = db.StockProductDJ.SingleOrDefault(p => p.ID == r.IDProductSouvenir);
+                if (x != null)
+                {
+                    x.StatusPenjualan = 0;
+                    x.StockActualDJ.InHand = 1;
+                    db.SubmitChanges();
+                }
+            }
+            else if (r.TipeProduct == 2)
+            {
+                var x = db.StockProductGJ.SingleOrDefault(p => p.ID == r.IDProductSouvenir);
+                if (x != null)
+                {
+                    x.StatusPenjualan = 0;
+                    x.StockActualGJ.InHand = 1;
+                    db.SubmitChanges();
+                }
+            }
+            else if (r.TipeProduct == 3)
+            {
+                var x = db.StockProductPG.SingleOrDefault(p => p.ID == r.IDProductSouvenir);
+                if (x != null)
+                {
+                    x.StatusPenjualan = 0;
+                    x.StockActualPG.InHand = 1;
+                    db.SubmitChanges();
+                }
+            }
+            else if (r.TipeProduct == 4)
+            {
+                var x = db.StockProductLD_Stone1B.SingleOrDefault(p => p.ID == r.IDProductSouvenir);
+                if (x != null)
+                {
+                    x.StatusPenjualan = 0;
+                    x.StockActualLD_Stone1B.InHand = 1;
+                    db.SubmitChanges();
+                }
+            }
+        }
+
+        foreach (var r in d.SalesReceiptDPPO)
+        {
+            r.StatusDP = 0;
+            r.IDSalesOrder = null;
+            db.SubmitChanges();
+        }
+
+        foreach (var r in d.SalesVoucher)
+        {
+            var x = cs.T_voucher.SingleOrDefault(p => p.M_klaimdoc == r.SalesOrder.Nomor);
+			
+				x.M_store2 = "";
+				x.M_tanggal2 = null;
+                x.M_klaimdoc = "";
+                x.M_kodecust = "";
+                x.M_nama = "";
+				cs.SubmitChanges();
+			
+        }
+
+        var y = cs.T_voucher.SingleOrDefault(p => p.M_klaimdoc == d.Nomor);
+
+        if (y != null)
+        {
+            y.M_store2 = "";
+            y.M_tanggal2 = null;
+            y.M_klaimdoc = "";
+            y.M_kodecust = "";
+            y.M_nama = "";
+            cs.SubmitChanges();
+        }
+
+        try
+        {
+            var tradein = db.TradeIn.SingleOrDefault(p => p.IDSalesOrder == d.ID);
+
+            var resell = db.Resell.SingleOrDefault(p => p.ID == tradein.IDResell);
+
+            foreach (var r in resell.ResellDJ)
+            {
+                var x = db.SalesOrderDJ.SingleOrDefault(p => p.IDForm == r.IDSalesOrder && p.IDProduct == r.IDProduct);
+                x.StatusResell = 0;
+                db.SubmitChanges();
+            }
+
+            foreach (var r in resell.ResellPG)
+            {
+                var x = db.SalesOrderPG.SingleOrDefault(p => p.IDForm == r.IDSalesOrder && p.IDProduct == r.IDProduct);
+                x.StatusResell = 0;
+                db.SubmitChanges();
+            }
+
+            foreach (var r in resell.ResellGJ)
+            {
+                var x = db.SalesOrderGJ.SingleOrDefault(p => p.IDForm == r.IDSalesOrder && p.IDProduct == r.IDProduct);
+                x.StatusResell = 0;
+                db.SubmitChanges();
+            }
+
+
+            Db.Execute("DELETE FROM ResellDJ WHERE IDForm = " + tradein.IDResell, Db.Cnn_DB);
+            Db.Execute("DELETE FROM ResellPG WHERE IDForm = " + tradein.IDResell, Db.Cnn_DB);
+            Db.Execute("DELETE FROM ResellGJ WHERE IDForm = " + tradein.IDResell, Db.Cnn_DB);
+            Db.Execute("DELETE FROM TradeIn WHERE IDSalesOrder = " + d.ID, Db.Cnn_DB);
+            Db.Execute("DELETE FROM SalesOrderPackaging WHERE IDForm = " + d.ID, Db.Cnn_DB);
+        }
+        catch (Exception ex) { }
+    }
+}

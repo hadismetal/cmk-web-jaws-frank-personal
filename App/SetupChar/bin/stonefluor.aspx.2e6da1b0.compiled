@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Information/StoneFluor.aspx" hash="fffffff60a01aa96" filehash="4829dfba1ca68a06" flags="110000" assembly="App_Web_stonefluor.aspx.2e6da1b0" type="ASP.page_information_stonefluor_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterPage.master" />
+        <filedep name="/SetupChar/MasterPage.master.cs" />
+        <filedep name="/SetupChar/Menu.ascx" />
+        <filedep name="/SetupChar/Menu.ascx.cs" />
+        <filedep name="/SetupChar/Page/Information/StoneFluor.aspx" />
+        <filedep name="/SetupChar/Page/Information/StoneFluor.aspx.cs" />
+    </filedeps>
+</preserve>

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/MasterPage.master" hash="fffffff60a01aa96" filehash="e9ac8ac805da270b" flags="110000" assembly="App_Web_masterpage.master.cdcab7d2" type="ASP.masterpage_master">
+    <filedeps>
+        <filedep name="/SetupChar/MasterPage.master" />
+        <filedep name="/SetupChar/MasterPage.master.cs" />
+        <filedep name="/SetupChar/Menu.ascx" />
+        <filedep name="/SetupChar/Menu.ascx.cs" />
+    </filedeps>
+</preserve>

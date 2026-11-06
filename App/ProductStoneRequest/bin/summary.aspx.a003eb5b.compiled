@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/ProductStoneRequest/Page/Summary.aspx" hash="fffffff60a01aa96" filehash="b54dc161034407fe" flags="110000" assembly="App_Web_summary.aspx.a003eb5b" type="ASP.page_summary_aspx">
+    <filedeps>
+        <filedep name="/ProductStoneRequest/MasterPage.master" />
+        <filedep name="/ProductStoneRequest/MasterPage.master.cs" />
+        <filedep name="/ProductStoneRequest/Menu.ascx" />
+        <filedep name="/ProductStoneRequest/Menu.ascx.cs" />
+        <filedep name="/ProductStoneRequest/Page/Summary.aspx" />
+        <filedep name="/ProductStoneRequest/Page/Summary.aspx.cs" />
+    </filedeps>
+</preserve>

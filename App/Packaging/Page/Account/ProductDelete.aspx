@@ -1,0 +1,1 @@
+﻿<%@ page language="C#" autoeventwireup="true" codefile="ProductDelete.aspx.cs" inherits="Page_Account_PackagingDelete" %>

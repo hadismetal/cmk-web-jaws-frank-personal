@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Business/ProcessRepairUpdate.aspx" hash="fffffff60a01aa96" filehash="847097ba927ce300" flags="110000" assembly="App_Web_processrepairupdate.aspx.f388c678" type="ASP.page_business_processrepairupdate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Business/ProcessRepairUpdate.aspx" />
+        <filedep name="/SetupChar/Page/Business/ProcessRepairUpdate.aspx.cs" />
+    </filedeps>
+</preserve>

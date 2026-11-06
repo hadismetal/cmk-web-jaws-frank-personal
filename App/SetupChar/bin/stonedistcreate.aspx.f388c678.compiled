@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Business/StoneDistCreate.aspx" hash="fffffff60a01aa96" filehash="a2bf3b67a05c61d4" flags="110000" assembly="App_Web_stonedistcreate.aspx.f388c678" type="ASP.page_business_stonedistcreate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Business/StoneDistCreate.aspx" />
+        <filedep name="/SetupChar/Page/Business/StoneDistCreate.aspx.cs" />
+    </filedeps>
+</preserve>

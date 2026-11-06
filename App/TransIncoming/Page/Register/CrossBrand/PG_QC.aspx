@@ -1,0 +1,318 @@
+﻿<%@ Page EnableEventValidation="false" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="PG_QC.aspx.cs" Inherits="PG_QC" %>
+
+<%@ Register Src="~/Page/Register/MenuPG.ascx" TagName="Menu" TagPrefix="uc1" %>
+
+<asp:Content ContentPlaceHolderID="h1" runat="server">
+    Plain Gold
+</asp:Content>
+<asp:Content ContentPlaceHolderID="h1_st" runat="server">
+    Register
+</asp:Content>
+
+<asp:Content ContentPlaceHolderID="content" runat="server">
+    <form id="Form1" runat="server">
+        <uc1:Menu ID="menu" runat="server" />
+        <hr />
+
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+            <h3 class="panel-title hidden-sm hidden-xs">Form Summary</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-5">
+                <table class="table-file">
+                    <tr>
+                        <td class="text-label">Outgoing Number</td>
+                        <td>:</td>
+                        <td id="outgoing" runat="server" class="text-bold" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">Market Brand</td>
+                        <td>:</td>
+                        <td id="brand" runat="server" class="text-bold" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">From
+                            <asp:Literal runat="server" ID="lit_type_from" /></td>
+                        <td>:</td>
+                        <td id="from" runat="server" class="text-bold" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">To
+                            <asp:Literal runat="server" ID="lit_type_to" /></td>
+                        <td>:</td>
+                        <td id="to" runat="server" class="text-bold" />
+                    </tr>
+                </table>
+            </div>
+            <br class="visible-sm visible-xs" />
+            <div class="col-md-5">
+                <table class="table-file">
+                    <tr>
+                        <td class="text-label">Tanggal</td>
+                        <td>:</td>
+                        <td id="tgl" runat="server" class="text-bold" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">Kurir</td>
+                        <td>:</td>
+                        <td id="kurir" runat="server" class="text-bold" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">Keterangan</td>
+                        <td>:</td>
+                        <td id="keterangan" runat="server" class="text-bold" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">Tanggal ETA</td>
+                        <td>:</td>
+                        <td id="eta" runat="server" class="text-bold" />
+                    </tr>
+                </table>
+            </div>
+            </div>
+        </div>
+
+
+       <div class="panel panel-info ">
+            <div class="panel-heading">
+             <h3 class="panel-title hidden-sm hidden-xs">Product List Summary</h3>
+            </div>
+            <div class="panel-body">
+                <br class="visible-sm visible-xs" />
+            <div class="col-md-5">
+                <table class="table-file">
+                    <tr>
+                        <td class="text-label">Qty</td>
+                        <td>:</td>
+                        <td id="totalqty" runat="server" class="text-bold" style="text-align: right;" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">Gross Weight</td>
+                        <td>:</td>
+                        <td id="totalgross" runat="server" class="text-bold" style="text-align: right;" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">Product Item</td>
+                        <td>:</td>
+                        <td id="product_item_summary" runat="server" class="text-bold" style="text-align: right;" />
+                    </tr>
+                    <tr>
+                        <td class="text-label">Product Status</td>
+                        <td>:</td>
+                        <td id="product_status_summary" runat="server" class="text-bold" style="text-align: right;" />
+                    </tr>
+                </table>
+            </div>
+            </div>
+         </div>
+
+
+
+ <%--       <div class="file-subheader2 hidden-sm hidden-xs">
+            accepted
+        </div>--%>
+        <div class="panel panel-success">
+        <div class="panel-heading">
+         <h2 class="panel-title">accepted</h2>
+        </div>
+          <div class="panel-body">
+                <div class="row" >
+                <br class="visible-sm visible-xs" />
+                    <div class="form-inline">
+
+                        <div class="table-responsive" style="margin-left:30px;">
+                            <asp:Table ID="Table2" runat="server" CssClass="table-list">
+                                <asp:TableHeaderRow>
+                                    <asp:TableHeaderCell Width="30" />
+                                    <asp:TableHeaderCell Width="110">Image</asp:TableHeaderCell>
+                                    <asp:TableHeaderCell Width="185">Product Item</asp:TableHeaderCell>
+                                    <asp:TableHeaderCell Width="120">Status</asp:TableHeaderCell>
+                                    <asp:TableHeaderCell Width="120">Net Weight</asp:TableHeaderCell>
+                                    <asp:TableHeaderCell Width="120">Gross Weight</asp:TableHeaderCell>
+                                    <asp:TableHeaderCell Width="120">T. Butir</asp:TableHeaderCell>
+                                    <asp:TableHeaderCell Width="120">Carat</asp:TableHeaderCell>
+                                    <asp:TableHeaderCell Width="120">Harga Jual</asp:TableHeaderCell>
+                                </asp:TableHeaderRow>
+                            </asp:Table>
+
+                            <div class="form-inline">
+                                <asp:CheckBoxList runat="server" ID="cbl_Product" />
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+          </div>
+        </div>
+
+
+       <%-- <div class="file-subheader2 hidden-sm hidden-xs">
+            broken
+        </div>--%>
+        <p runat="server" visible="false">
+        <div class="panel panel-warning" >
+        <div class="panel-heading">
+        <h3 class="panel-title">broken</h3>
+        </div>
+        <div class="panel-body">
+    
+            <div class="row">
+            <br class="visible-sm visible-xs" />
+            <div class="form-inline">
+
+                <div class="table-responsive" style="margin-left:30px;">
+                    <asp:Table ID="Table1" runat="server" CssClass="table-list">
+                        <asp:TableHeaderRow>
+                            <asp:TableHeaderCell Width="30" />
+                            <asp:TableHeaderCell Width="110">Image</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="185">Product Item</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Status</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Net Weight</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Gross Weight</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">T. Butir</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Carat</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Harga Jual</asp:TableHeaderCell>
+                        </asp:TableHeaderRow>
+                    </asp:Table>
+
+                    <div class="form-inline">
+                        <asp:CheckBoxList runat="server" ID="cbl_Product_2" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        </div>
+        </div>
+
+        </p>
+
+
+       <%-- <div class="file-subheader2 hidden-sm hidden-xs">
+            trouble / lost
+        </div>--%><p runat="server" visible="false">
+
+        <div class="panel panel-danger">
+          <div class="panel-heading">
+            <h3 class="panel-title">trouble / lost</h3>
+          </div>
+          <div class="panel-body">
+            
+              <div class="row">
+            <br class="visible-sm visible-xs" />
+            <div class="form-inline">
+
+                <div class="table-responsive" style="margin-left:30px;">
+                    <asp:Table ID="tb" runat="server" CssClass="table-list">
+                        <asp:TableHeaderRow>
+                            <asp:TableHeaderCell Width="30" />
+                            <asp:TableHeaderCell Width="110">Image</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="185">Product Item</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Status</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Net Weight</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Gross Weight</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">T. Butir</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Carat</asp:TableHeaderCell>
+                            <asp:TableHeaderCell Width="120">Harga Jual</asp:TableHeaderCell>
+                        </asp:TableHeaderRow>
+                    </asp:Table>
+
+                    <div class="form-inline">
+                        <asp:CheckBoxList runat="server" ID="cbl_Product_3" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+          </div>
+        </div>
+        </p>
+
+
+        <div class="panel panel-info hidden-sm hidden-xs">
+            <div class="panel-heading">
+                <h3 class="panel-title">QC Summary</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table-file">
+                    <tr>
+                        <td class="text-label">accepted</td>
+                        <td>:</td>
+                        <td id="accepted" runat="server" class="text-bold" />
+                    </tr>
+                    <tr>
+                        <td id="broken" runat="server" class="text-bold" colspan="3" visible="false" />
+                    </tr>
+                    <tr>
+                        <td id="troublelost" runat="server" class="text-bold" colspan="3" visible="false" />
+                    </tr>
+
+                </table>
+                <table class="table-file">
+                    <tr>
+                        <td class="text-label">Keterangan</td>
+                        <td>:</td>
+                        <td id="tdKeterangan" runat="server" class="text-bold" style="text-align: right;" />
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <hr />
+
+      <%--  <p id="pconfirm" runat="server" visible="false">
+        <div class="panel panel-danger" id="warning">
+          <div class="panel-heading">
+            <h3 class="panel-title">Warning</h3>
+          </div>
+          <div class="panel-body">
+              <asp:Label ID="Label1" runat="server" Text="Are you sure ? " Font-Size="X-Large" ForeColor="Red"></asp:Label>
+                            <br />
+                    <asp:Label ID="lbwarning_broken" runat="server" Font-Size="X-Large" ForeColor="Red"></asp:Label>
+                            <br />
+                    <asp:Label ID="lbwarning_trouble" runat="server" Font-Size="X-Large" ForeColor="Red"></asp:Label>
+                <br />
+              <asp:Button ID="BtYes" runat="server" Text="Yes"  Font-Size="X-Large"  Visible ="false" OnClick="Yes_Click"/>
+          </div>
+        </div>
+        </p>--%>
+        <div class="row">
+            <br class="visible-sm visible-xs" />
+            <div class="col-md-5">
+
+            <%--    <button id="next2" runat="server" class="btn btn-primary" onserverclick="next2_Click">
+                    <i class="icon-arrow-right"></i>
+                    Next
+                </button>
+                <button id="back1" runat="server" class="btn btn-primary" onserverclick="back1_Click">
+                    <i class="icon-arrow-left"></i>
+                    Back
+                </button>
+                <button id="next3" runat="server" class="btn btn-primary" onserverclick="next3_Click">
+                    <i class="icon-arrow-right"></i>
+                    Next
+                </button>
+                <button id="back2" runat="server" class="btn btn-primary" onserverclick="back2_Click">
+                    <i class="icon-arrow-left"></i>
+                    Back
+                </button>
+                <button id="nextF" runat="server" class="btn btn-primary" onserverclick="lastcek_Click">
+                    <i class="icon-arrow-right"></i>
+                    Next
+                </button>--%>
+                 <button id="BtSubmit" runat="server" class="btn btn-primary" onserverclick="nextF_Click">
+                    <i class="icon-arrow-right"></i>
+                   Confirm
+                </button>                 
+            </div>
+        </div>
+
+        
+
+    </form>
+</asp:Content>
+

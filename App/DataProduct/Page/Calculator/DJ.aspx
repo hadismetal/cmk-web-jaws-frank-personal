@@ -1,0 +1,1 @@
+﻿<%@ page language="C#" masterpagefile="~/MasterPage.master" autoeventwireup="true" codefile="DJ.aspx.cs" inherits="Page_Register_DJ" %>

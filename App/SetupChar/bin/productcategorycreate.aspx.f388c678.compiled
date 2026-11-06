@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Business/ProductCategoryCreate.aspx" hash="fffffff60a01aa96" filehash="c27030bb3ad5dd81" flags="110000" assembly="App_Web_productcategorycreate.aspx.f388c678" type="ASP.page_business_productcategorycreate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Business/ProductCategoryCreate.aspx" />
+        <filedep name="/SetupChar/Page/Business/ProductCategoryCreate.aspx.cs" />
+    </filedeps>
+</preserve>

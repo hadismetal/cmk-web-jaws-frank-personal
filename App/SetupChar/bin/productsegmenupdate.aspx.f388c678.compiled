@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Business/ProductSegmenUpdate.aspx" hash="fffffff60a01aa96" filehash="25ae2466f6513d63" flags="110000" assembly="App_Web_productsegmenupdate.aspx.f388c678" type="ASP.page_business_productsegmenupdate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Business/ProductSegmenUpdate.aspx" />
+        <filedep name="/SetupChar/Page/Business/ProductSegmenUpdate.aspx.cs" />
+    </filedeps>
+</preserve>

@@ -1,0 +1,270 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPage.master.cs" Inherits="MasterPage" %>
+
+<%@ Register Src="Menu.ascx" TagName="Menu" TagPrefix="uc1" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/UI/CSS/bootstrap_reparasi.css" />
+    <link rel="stylesheet" href="/UI/CSS/bootstrap.datepicker.css" />
+    <link rel="stylesheet" href="/UI/CSS/bootstrap.font.css" />
+    <link rel="stylesheet" href="/UI/CSS/custom.css" />
+    <link rel="stylesheet" href="/UI/Assets/select2-4.1.0/css/select2.min.css"/>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css" />
+	<link rel="stylesheet" href="/UI/CSS/jquery.inputpicker.css"/>
+    <link href="/UI/bootstrap5/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/lib/toastr/toastr.min.css" />
+    <style>
+        .onoffswitch {
+            position: relative;
+            width: 90px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .onoffswitch-checkbox {
+            display: none;
+        }
+
+        .onoffswitch-label {
+            display: block;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid #999999;
+            border-radius: 20px;
+        }
+
+        .onoffswitch-inner {
+            display: block;
+            width: 200%;
+            margin-left: -100%;
+            -moz-transition: margin 0.3s ease-in 0s;
+            -webkit-transition: margin 0.3s ease-in 0s;
+            -o-transition: margin 0.3s ease-in 0s;
+            transition: margin 0.3s ease-in 0s;
+        }
+
+        .onoffswitch-inner:before,
+        .onoffswitch-inner:after {
+            display: block;
+            float: left;
+            width: 50%;
+            height: 30px;
+            padding: 0;
+            line-height: 30px;
+            font-size: 14px;
+            color: white;
+            font-family: Trebuchet, Arial, sans-serif;
+            font-weight: bold;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        .onoffswitch-inner:before {
+            content: "A";
+            padding-left: 10px;
+            background-color: #2FCCFF;
+            color: #FFFFFF;
+        }
+
+        .onoffswitch-inner:after {
+            content: "D";
+            padding-right: 10px;
+            background-color: #EEEEEE;
+            color: #999999;
+            text-align: right;
+        }
+
+        .onoffswitch-switch {
+            display: block;
+            width: 18px;
+            margin: 6px;
+            background: #FFFFFF;
+            border: 2px solid #999999;
+            border-radius: 20px;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 56px;
+            -moz-transition: all 0.3s ease-in 0s;
+            -webkit-transition: all 0.3s ease-in 0s;
+            -o-transition: all 0.3s ease-in 0s;
+            transition: all 0.3s ease-in 0s;
+        }
+
+        .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-inner {
+            margin-left: 0;
+        }
+
+        .onoffswitch-checkbox:checked+.onoffswitch-label .onoffswitch-switch {
+            right: 0px;
+        }
+
+        
+	    @property --fweight {
+            syntax: "<number>";
+            inherits: false;
+            initial-value: 100;
+        }
+        @property --fwidth {
+            syntax: "<number>";
+            inherits: false;
+            initial-value: 50;
+        }
+        @property --letspac {
+            syntax: "<number>";
+            inherits: false;
+            initial-value: 0;
+        }
+        
+        :root {
+            --my-ease: cubic-bezier(.01,.79,.33,1.01);
+        }
+
+        #loader {            
+            place-content: center;
+            min-height: 50vh;
+            font-size: 2vw;            
+            display: none; 
+            margin: 50px auto;
+            font-family: "calibri";
+            font-variation-settings: "wght" var(--fweight), "wdth" var(--fwidth);
+            letter-spacing: calc(var(--letspac) * .5rem);
+            animation: fontstretch 2s infinite var(--my-ease);
+        }
+
+        @keyframes fontstretch {
+            0% {
+                --fweight: 80;
+                --fwidth: 50;
+                --letspac: 0;
+            }
+            50% {
+                --fweight: 70;
+                --fwidth: 100;
+                --letspac: 1;
+            }
+        }
+</style>
+        
+
+    <!-- JavaScript -->
+    <script type="text/javascript" src="/UI/JS/jquery.js"></script>
+    <script type="text/javascript" src="/UI/JS/bootstrap.js"></script>
+    <script type="text/javascript" src="/UI/JS/datepicker.js"></script>
+    <script type="text/javascript" src="/UI/JS/custom.js"></script>
+    <script type="text/javascript" src="/UI/Assets/select2-4.1.0/js/select2.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="/UI/JS/jquery.inputpicker.js"></script>
+    <script src="/UI/bootstrap5/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="/lib/toastr/toastr.min.js"></script>
+
+
+    
+
+    <script>
+        $.fn.ready(function () {
+            // Spoiler
+            $(document).on('click', '.spoiler-btn', function (e) {
+                e.preventDefault()
+                $(this).parent().children('.spoiler-body').collapse('toggle')
+            });
+        });
+
+        //function bindEvent(element, eventName, eventHandler) {
+        //    var el = $(element)[0];
+        //    if (el.addEventListener) {
+        //        el.addEventListener(eventName, eventHandler, false)
+        //    } else if (el.attachEvent) {
+        //        el.attachEvent('on' + eventName, eventHandler);
+        //    }
+        //}
+        //bindEvent('#b1', 'click', function () {
+        //    $('#p1').toggle('blind');
+        //    if ($('#b1').text() == 'Show Spoiler') {
+        //        $('#b1').text('Hide Spoiler');
+        //    } else if ($('#b1').text() == 'Hide Spoiler') {
+        //        $('#b1').text('Show Spoiler');
+        //    }
+
+        //});
+    </script>
+</head>
+<body class="page">
+    <!-- Menu -->
+    <div class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid px-3">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse">
+                <uc1:Menu ID="menu" runat="server" />
+                <ul class="nav navbar-nav navbar-right">
+                    <%--<li>
+						<a runat="server" href="~/?so=3">
+							<span class="visible-sm visible-md visible-lg"><i class="icon-question icon-large" title="FAQ"></i></span>
+							<span class="visible-xs">FAQ</span>
+						</a>
+					</li>--%>
+                    <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><asp:Literal runat="server" ID="lit_userstatus" /></a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <asp:Literal runat="server" ID="lit_userstatus_info" />
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a runat="server" href="~/?so=1">
+                            <span class="visible-sm visible-md visible-lg"><i class="icon-home icon-large" title="Homepage"></i></span>
+                            <span class="visible-xs">Homepage</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a runat="server" href="~/?so=2">
+                            <span class="visible-sm visible-md visible-lg"><i class="icon-signout icon-large" title="Sign-Out"></i></span>
+                            <span class="visible-xs">Sign-Out</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container-fluid mt-5">
+        <h1>
+            <small id="module" runat="server" />
+            <br />
+            <asp:ContentPlaceHolder ID="h1" runat="server" />
+            <small>
+                <asp:ContentPlaceHolder ID="h1_st" runat="server" />
+            </small>
+        </h1>
+        <asp:ContentPlaceHolder ID="content" runat="server" />
+    </div>
+
+    <!-- Sistem Notifikasi -->
+    <div id="callout" runat="server" class="alert alert-success">
+        <i class="icon-spinner icon-spin icon-large"></i>
+        Proses Berhasil
+    </div>
+    <asp:Literal ID="callout_script" runat="server" Visible="false">
+		<script type="text/javascript">
+            $('#callout').show();
+            $('#callout').fadeOut(5000);
+		</script>
+    </asp:Literal>
+</body>
+</html>

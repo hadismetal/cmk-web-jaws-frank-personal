@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/ProductStoneRequest/Default.aspx" hash="fffffff60a01aa96" filehash="1a46b8aa91fe526" flags="110000" assembly="App_Web_default.aspx.cdcab7d2" type="ASP.default_aspx">
+    <filedeps>
+        <filedep name="/ProductStoneRequest/Default.aspx" />
+        <filedep name="/ProductStoneRequest/Default.aspx.cs" />
+    </filedeps>
+</preserve>

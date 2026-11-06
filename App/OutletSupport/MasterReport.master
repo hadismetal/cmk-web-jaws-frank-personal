@@ -1,0 +1,90 @@
+﻿<%@ master language="C#" autoeventwireup="true" codefile="MasterReport.master.cs" inherits="MasterReport" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+	<title></title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<!-- CSS -->
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.css" />
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.datepicker.css" />
+	<link rel="stylesheet" href="/UI/CSS/bootstrap.font.css" />
+	<link rel="stylesheet" href="/UI/CSS/custom.css" />
+
+	<!-- JavaScript -->
+	<script type="text/javascript" src="/UI/JS/jquery.js"></script>
+	<script type="text/javascript" src="/UI/JS/bootstrap.js"></script>
+	<script type="text/javascript" src="/UI/JS/datepicker.js"></script>
+	<script type="text/javascript" src="/UI/JS/custom.js"></script>
+</head>
+<body class="report">
+	<!-- Judul -->
+	<h1>
+		<small id="module" runat="server" />
+		<br />
+		<asp:contentplaceholder id="h1" runat="server" />
+		<small>
+			<asp:contentplaceholder id="h1_st" runat="server" />
+		</small>
+	</h1>
+
+	<!-- Filter -->
+	<div id="filter_area">
+		<asp:contentplaceholder id="filter" runat="server" />
+	</div>
+
+	<hr />
+
+	<!-- Content -->
+	<div id="content_area">
+		<asp:contentplaceholder id="content" runat="server" />
+	</div>
+
+	<!-- Output Marker -->
+	<p id="output" class="text-muted text-sm">
+		Output : <span id="output_tgl" runat="server" />
+		oleh <span id="output_user" runat="server" />
+	</p>
+
+	<!-- Tanda Tangan -->
+	<ul id="ttd" class="list-inline">
+		<li>Dibuat Oleh :
+			<br />
+			<br />
+			<br />
+			<br />
+			.............................
+		</li>
+		<li>Diperiksa Oleh :
+			<br />
+			<br />
+			<br />
+			<br />
+			.............................
+		</li>
+		<li>&nbsp;
+			<br />
+			<br />
+			<br />
+			<br />
+			.............................
+		</li>
+		<li>Disetujui Oleh :
+			<br />
+			<br />
+			<br />
+			<br />
+			.............................
+		</li>
+		<li>&nbsp;
+			<br />
+			<br />
+			<br />
+			<br />
+			.............................
+		</li>
+	</ul>
+</body>
+</html>

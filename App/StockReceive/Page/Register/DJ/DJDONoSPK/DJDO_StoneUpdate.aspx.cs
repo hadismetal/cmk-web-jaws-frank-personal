@@ -1,0 +1,644 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+using System.Web.UI.WebControls;
+
+public partial class Page_Register_DJDO_DJDO_StoneUpdate : System.Web.UI.Page
+{
+    private Map_DB _db;
+
+    private Map_DB db
+    {
+        get
+        {
+            if (_db == null)
+                _db = new Map_DB();
+            return _db;
+        }
+    }
+
+    public override void Dispose()
+    {
+        if (db != null)
+            db.Dispose();
+        base.Dispose();
+    }
+    protected int myID { get { return App.QueryInt(this); } }
+    protected int myStoneIndex { get { return App.QueryInt(this, "si"); } }
+    protected int myTableID { get { return App.QueryInt(this, "tid"); } }
+    protected string myNODO { get { return Request.QueryString["nodo"]; } }
+    protected string myNOBRG { get { return Request.QueryString["nobrg"]; } }
+    protected string myNOVAL { get { return Request.QueryString["noval"]; } }
+    protected string myNOBAG { get { return Request.QueryString["nobag"]; } }
+
+    protected void Page_Load(object sender, EventArgs e)
+    {
+        App.Protect();
+        App.ProtectRole(Role.Operator);
+
+        if (!IsPostBack)
+        {
+            totalbutir.Focus();
+
+            //Number-Format
+            App.NumberFormat(totalbutir);
+            App.NumberFormat(totalcarat);
+            App.NumberFormat(dimensip);
+            App.NumberFormat(dimensil);
+            App.NumberFormat(dimensit);
+
+            //Form
+            fillForm();
+        }
+    }
+
+    //Exception
+    protected void DataError() { Response.Redirect("DJDO.aspx"); }
+    protected void LinkError() { Response.Redirect("DJDO_Detail.aspx?id=" + myID + "&nodo=" + myNODO + "&nobrg=" + myNOBRG + "&noval=" + myNOVAL + "&nobag=" + myNOBAG); }
+    protected void ProductError() { Response.Redirect("DJDO_Detail.aspx?id=" + myID + "&nodo=" + myNODO + "&nobrg=" + myNOBRG + "&noval=" + myNOVAL + "&nobag=" + myNOBAG); }
+
+    //Form
+    protected void fillForm()
+    {
+        var d = db.StockReceiveDJ.SingleOrDefault(p => p.ID == myID && p.Draft);
+        if (d == null) DataError();
+        else
+        {
+            //Header
+            header_nomor.InnerHtml =
+                "<a href=\"../History/DJ_File.aspx?id=" + d.ID + "\" target=\"_blank\"><i class=\"icon-file-alt\"></i> "
+                + d.Nomor + "</a>";
+
+            //Cancel-Link
+            cancel.HRef += "?id=" + myID + "&nodo=" + myNODO + "&nobrg=" + myNOBRG + "&noval=" + myNOVAL + "&nobag=" + myNOBAG + "#div_stone";
+            try
+            {
+                if ((d.StockReceiveDJ_CharProduct.CharProductLevel.NamaKode == "MTG" || d.StockReceiveDJ_CharProduct.CharProductLevel.NamaKode == "SMG") && myStoneIndex == 1)
+                    colterpasang.Visible = true;
+                else
+                    colterpasang.Visible = false;
+            }
+            catch { }
+
+            //Stone Data
+            stone_index.InnerHtml = DL.StoneIndex(myStoneIndex);
+            switch (myStoneIndex)
+            {
+                case 0: fillStone1A(); break;
+                case 1: fillStone1B(); break;
+                case 2: fillStone2(); break;
+                case 3: fillStone3(); break;
+                case 4: fillStone4(); break;
+                case 5: fillStone5(); break;
+            }
+        }
+    }
+
+    //Stone Data
+    protected void fillStone1A()
+    {
+        var d = db.StockReceiveDJ_Stone1A.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            stone_nama.InnerHtml = d.Stone1A.Nama;
+
+            //Size Control
+            if (!d.Stone1A.Parcel102.SizeMin.HasValue || !d.Stone1A.Parcel102.SizeMax.HasValue) sizeError();
+            else
+                sizeDisplay(
+                    d.Stone1A.Parcel102.SizeMin,
+                    d.Stone1A.Parcel102.SizeMax
+                    );
+
+            totalbutir.Text = Str.Integer(d.TotalButir);
+            totalcarat.Text = Str.Number3(d.TotalCarat);
+
+            //Dimensi
+            dimensip.Text = Str.Number2(d.DimensiP);
+            dimensil.Text = Str.Number2(d.DimensiL);
+            dimensit.Text = Str.Number2(d.DimensiT);
+
+            if (d.Stone1A.Nama.EndsWith("FV") || d.Stone1A.Nama.EndsWith("SR"))
+            {
+                //Certificate Number
+                certPanel.Visible = true;
+                string CertificateNumber = Db.SingleString("SELECT TOP 1 ISNULL(CertificateNumber,'') FROM StockReceiveDJ_Stone1A WHERE ID = '" + d.ID.ToString() + "' ", Db.Cnn_DB);
+                certificate.Text = CertificateNumber;
+
+                //Tgl Certificate
+                string TglCertificate = Db.SingleString("SELECT TOP 1 ISNULL(TglCertificate,'') FROM StockReceiveDJ_Stone1A WHERE ID = '" + d.ID.ToString() + "' ", Db.Cnn_DB);
+                tglCertificate.Text = TglCertificate;
+            }
+        }
+    }
+    protected void fillStone1B()
+    {
+        var d = db.StockReceiveDJ_Stone1B.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            stone_nama.InnerHtml = d.Stone1B.Nama;
+
+            //Size Control
+            if (!d.Stone1B.Parcel102.SizeMin.HasValue || !d.Stone1B.Parcel102.SizeMax.HasValue) sizeError();
+            else
+                sizeDisplay(
+                    d.Stone1B.Parcel102.SizeMin,
+                    d.Stone1B.Parcel102.SizeMax
+                    );
+
+            totalbutir.Text = Str.Integer(d.TotalButir);
+            totalcarat.Text = Str.Number3(d.TotalCarat);
+            if (d.StatusTerpasang == 1)
+                terpasang.Checked = true;
+            else
+                terpasang.Checked = false;
+
+            //Dimensi
+            dimensip.Text = Str.Number2(d.DimensiP);
+            dimensil.Text = Str.Number2(d.DimensiL);
+            dimensit.Text = Str.Number2(d.DimensiT);
+
+            //GIA
+            div_gia.Visible = true;
+            gia.Text = d.GIA;
+        }
+    }
+    protected void fillStone2()
+    {
+        var d = db.StockReceiveDJ_Stone2.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            stone_nama.InnerHtml = d.Stone2.Nama;
+
+            //Size Control
+            if (!d.Stone2.Parcel203.SizeMin.HasValue || !d.Stone2.Parcel203.SizeMax.HasValue) sizeError();
+            else
+                sizeDisplay(
+                    d.Stone2.Parcel203.SizeMin,
+                    d.Stone2.Parcel203.SizeMax
+                    );
+
+            totalbutir.Text = Str.Integer(d.TotalButir);
+            totalcarat.Text = Str.Number3(d.TotalCarat);
+
+            //Dimensi
+            dimensip.Text = Str.Number2(d.DimensiP);
+            dimensil.Text = Str.Number2(d.DimensiL);
+            dimensit.Text = Str.Number2(d.DimensiT);
+
+            //GIA
+            div_gia.Visible = true;
+            //gia.Text = d.GIA;
+        }
+    }
+    protected void fillStone3()
+    {
+        var d = db.StockReceiveDJ_Stone3.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            stone_nama.InnerHtml = d.Stone3.Nama;
+
+            //Size Control
+            if (!d.Stone3.Parcel303.SizeMin.HasValue || !d.Stone3.Parcel303.SizeMax.HasValue) sizeError();
+            else
+                sizeDisplay(
+                    d.Stone3.Parcel303.SizeMin,
+                    d.Stone3.Parcel303.SizeMax
+                    );
+
+            totalbutir.Text = Str.Integer(d.TotalButir);
+            totalcarat.Text = Str.Number3(d.TotalCarat);
+
+            //Dimensi
+            dimensip.Text = Str.Number2(d.DimensiP);
+            dimensil.Text = Str.Number2(d.DimensiL);
+            dimensit.Text = Str.Number2(d.DimensiT);
+
+            //GIA
+            div_gia.Visible = true;
+            gia.Text = d.GIA;
+        }
+    }
+    protected void fillStone4()
+    {
+        var d = db.StockReceiveDJ_Stone4.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            stone_nama.InnerHtml = d.Stone4.Nama;
+
+            //Size Control
+            if (!d.Stone4.Parcel403.SizeMin.HasValue || !d.Stone4.Parcel403.SizeMax.HasValue) sizeError();
+            else
+                sizeDisplay(
+                    d.Stone4.Parcel403.SizeMin,
+                    d.Stone4.Parcel403.SizeMax
+                    );
+
+            totalbutir.Text = Str.Integer(d.TotalButir);
+            totalcarat.Text = Str.Number3(d.TotalCarat);
+
+            //Dimensi
+            dimensip.Text = Str.Number2(d.DimensiP);
+            dimensil.Text = Str.Number2(d.DimensiL);
+            dimensit.Text = Str.Number2(d.DimensiT);
+
+            //GIA
+            div_gia.Visible = true;
+            //gia.Text = d.GIA;
+        }
+    }
+    protected void fillStone5()
+    {
+        var d = db.StockReceiveDJ_Stone5.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            stone_nama.InnerHtml = d.Stone5.Nama;
+
+            //Size Control
+            p_sizecontrol.Visible = false;
+
+            totalbutir.Text = Str.Integer(d.TotalButir);
+            totalcarat.Text = Str.Number3(d.TotalCarat);
+
+            //Dimensi
+            dimensip.Text = Str.Number2(d.DimensiP);
+            dimensil.Text = Str.Number2(d.DimensiL);
+            dimensit.Text = Str.Number2(d.DimensiT);
+
+            //GIA
+            div_gia.Visible = true;
+            //gia.Text = d.GIA;
+        }
+    }
+
+    //Size Control
+    protected void sizeError()
+    {
+        save.Disabled = true;
+
+        //Belum Setup
+        sizecontrol.Attributes["class"] = "text-red";
+        sizecontrol.InnerHtml = "<i class=\"icon-warning-sign\"></i> Belum Setup";
+    }
+    protected void sizeDisplay(decimal? SizeMin, decimal? SizeMax)
+    {
+        string x = string.Empty;
+
+        x += Str.Number3(SizeMin);
+        x += " - ";
+        x += Str.Number3(SizeMax);
+
+        sizecontrol.InnerHtml = x;
+    }
+
+    //Validasi Carat
+    protected bool carat1A(int TotalButir, decimal TotalCarat)
+    {
+        var d = db.StockReceiveDJ_Stone1A.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) { LinkError(); return false; }
+        else
+        {
+            decimal Min = d.Stone1A.Parcel102.SizeMin.Value;
+            decimal Max = d.Stone1A.Parcel102.SizeMax.Value;
+
+            decimal CB = TotalButir > 0 ? TotalCarat / TotalButir : 0;
+            return (CB >= Min && CB <= Max);
+        }
+    }
+    protected bool carat1B(int TotalButir, decimal TotalCarat)
+    {
+        var d = db.StockReceiveDJ_Stone1B.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) { LinkError(); return false; }
+        else
+        {
+            decimal Min = d.Stone1B.Parcel102.SizeMin.Value;
+            decimal Max = d.Stone1B.Parcel102.SizeMax.Value;
+
+            decimal CB = TotalButir > 0 ? TotalCarat / TotalButir : 0;
+            return (CB >= Min && CB <= Max);
+        }
+    }
+    protected bool carat2(int TotalButir, decimal TotalCarat)
+    {
+        var d = db.StockReceiveDJ_Stone2.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) { LinkError(); return false; }
+        else
+        {
+            decimal Min = d.Stone2.Parcel203.SizeMin.Value;
+            decimal Max = d.Stone2.Parcel203.SizeMax.Value;
+
+            decimal CB = TotalButir > 0 ? TotalCarat / TotalButir : 0;
+            return (CB >= Min && CB <= Max);
+        }
+    }
+    protected bool carat3(int TotalButir, decimal TotalCarat)
+    {
+        var d = db.StockReceiveDJ_Stone3.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) { LinkError(); return false; }
+        else
+        {
+            decimal Min = d.Stone3.Parcel303.SizeMin.Value;
+            decimal Max = d.Stone3.Parcel303.SizeMax.Value;
+
+            decimal CB = TotalButir > 0 ? TotalCarat / TotalButir : 0;
+            return (CB >= Min && CB <= Max);
+        }
+    }
+    protected bool carat4(int TotalButir, decimal TotalCarat)
+    {
+        var d = db.StockReceiveDJ_Stone4.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) { LinkError(); return false; }
+        else
+        {
+            decimal Min = d.Stone4.Parcel403.SizeMin.Value;
+            decimal Max = d.Stone4.Parcel403.SizeMax.Value;
+
+            decimal CB = TotalButir > 0 ? TotalCarat / TotalButir : 0;
+            return (CB >= Min && CB <= Max);
+        }
+    }
+
+    //Save
+    protected bool valid
+    {
+        get
+        {
+            bool x = true;
+
+            x = x && Fv.isDecimal(totalbutir, totalbutir_ERR);
+            x = x && Fv.isDecimal(totalcarat, totalcarat_ERR);
+            x = x && Fv.isDecimal(dimensip, dimensip_ERR);
+            x = x && Fv.isDecimal(dimensil, dimensil_ERR, true);
+            x = x && Fv.isDecimal(dimensit, dimensit_ERR, true);
+
+            //Value
+            x = x && valid_TotalButir;
+            x = x && valid_TotalCarat;
+
+            //Size-Control
+            x = x && valid_CaratButir;
+
+            return x;
+        }
+    }
+    protected bool valid_TotalButir
+    {
+        get
+        {
+            int dv = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+
+            bool x = dv > 0;
+            totalbutir_VAL.Visible = !x;
+
+            return x;
+        }
+    }
+    protected bool valid_TotalCarat
+    {
+        get
+        {
+            decimal dv = Convert.ToDecimal(totalcarat.Text);
+
+            bool x = dv > 0;
+            totalcarat_VAL.Visible = !x;
+
+            return x;
+        }
+    }
+    protected bool valid_CaratButir
+    {
+        get
+        {
+            bool x = true;
+
+            int TotalButir = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+            decimal TotalCarat = Convert.ToDecimal(totalcarat.Text);
+
+            switch (myStoneIndex)
+            {
+                case 0: x = carat1A(TotalButir, TotalCarat); break;
+                case 1: x = carat1B(TotalButir, TotalCarat); break;
+                case 2: x = carat2(TotalButir, TotalCarat); break;
+                case 3: x = carat3(TotalButir, TotalCarat); break;
+                case 4: x = carat4(TotalButir, TotalCarat); break;
+            }
+
+            caratbutir_ERR.Visible = !x;
+            return x;
+        }
+    }
+    protected bool validStone1B
+    {
+        get
+        {
+            bool x = true;
+
+
+            if (myStoneIndex == 1 && terpasang.Checked)
+            {
+                var d = db.Stone1B.SingleOrDefault(p => p.ID == myTableID);
+                if (gia.Text == "" && tglGIA.Text == "" && d.Parcel106.NamaKode != "NN")
+                    x = false;
+                gia_ERR.Visible = !x;
+            }
+
+
+            return x;
+        }
+
+    }
+    protected void save_Click(object sender, EventArgs e)
+    {
+        if (valid && validStone1B)
+        {
+            var d = db.StockReceiveDJ.SingleOrDefault(p => p.ID == myID && p.Draft);
+            if (d == null) DataError();
+            else
+            {
+                //Process
+                var product = d.StockReceiveDJ_CharProduct;
+                if (product == null)
+                {
+                    switch (myStoneIndex)
+                    {
+                        case 0: save1A(d); break;
+                        case 1: save1B(d); break;
+                        case 2: save2(d); break;
+                        case 3: save3(d); break;
+                        case 4: save4(d); break;
+                        case 5: save5(d); break;
+                    }
+                    ProductError();
+                }
+                else
+                {
+                    switch (myStoneIndex)
+                    {
+                        case 0: save1A(d); break;
+                        case 1: save1B(d); break;
+                        case 2: save2(d); break;
+                        case 3: save3(d); break;
+                        case 4: save4(d); break;
+                        case 5: save5(d); break;
+                    }
+
+                    //Recalculate
+                    Lib.RecalWeight(db, d, product);
+                }
+
+                //Redirect
+                Response.Redirect("DJDO_Detail.aspx?id=" + myID + "&nodo=" + myNODO + "&nobrg=" + myNOBRG + "&noval=" + myNOVAL + "&nobag=" + myNOBAG + "#div_stone");
+            }
+        }
+    }
+
+    //Process
+    protected void save1A(StockReceiveDJ ms)
+    {
+        var d = db.StockReceiveDJ_Stone1A.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            d.TotalButir = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+            d.TotalCarat = Convert.ToDecimal(totalcarat.Text);
+            d.CaratButir = d.TotalButir > 0 ? d.TotalCarat / d.TotalButir : 0;
+
+            //Dimensi
+            d.DimensiP = Convert.ToDecimal(dimensip.Text);
+            if (dimensil.Text != "") d.DimensiL = Convert.ToDecimal(dimensil.Text); else d.DimensiL = null;
+            if (dimensit.Text != "") d.DimensiT = Convert.ToDecimal(dimensit.Text); else d.DimensiT = null;
+
+            //Commit
+            db.SubmitChanges();
+
+            if (d.Stone1A.Nama.EndsWith("FV") || d.Stone1A.Nama.EndsWith("SR"))
+            {
+                //Certificate Number
+                Db.Execute("UPDATE StockReceiveDJ_Stone1A SET CertificateNumber =  '" + certificate.Text + "' " + ((tglCertificate.Text != "") ? ", TglCertificate = '" + tglCertificate.Text + "'" : "") + " WHERE ID = '" + d.ID.ToString() + "' ", Db.Cnn_DB);
+            }
+        }
+    }
+    protected void save1B(StockReceiveDJ ms)
+    {
+        var d = db.StockReceiveDJ_Stone1B.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            d.TotalButir = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+            d.TotalCarat = Convert.ToDecimal(totalcarat.Text);
+            d.CaratButir = d.TotalButir > 0 ? d.TotalCarat / d.TotalButir : 0;
+            d.StatusTerpasang = Convert.ToInt32(terpasang.Checked);
+
+            //Dimensi
+            d.DimensiP = Convert.ToDecimal(dimensip.Text);
+            if (dimensil.Text != "") d.DimensiL = Convert.ToDecimal(dimensil.Text); else d.DimensiL = null;
+            if (dimensit.Text != "") d.DimensiT = Convert.ToDecimal(dimensit.Text); else d.DimensiT = null;
+
+            //GIA
+            d.GIA = Str.CapUpper(gia.Text);
+            if (tglGIA.Text.Trim() != "") { d.TglGIA = Convert.ToDateTime(tglGIA.Text.Trim()); }
+
+            //Commit
+            db.SubmitChanges();
+        }
+    }
+    protected void save2(StockReceiveDJ ms)
+    {
+        var d = db.StockReceiveDJ_Stone2.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            d.TotalButir = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+            d.TotalCarat = Convert.ToDecimal(totalcarat.Text);
+            d.CaratButir = d.TotalButir > 0 ? d.TotalCarat / d.TotalButir : 0;
+
+            //Dimensi
+            d.DimensiP = Convert.ToDecimal(dimensip.Text);
+            if (dimensil.Text != "") d.DimensiL = Convert.ToDecimal(dimensil.Text); else d.DimensiL = null;
+            if (dimensit.Text != "") d.DimensiT = Convert.ToDecimal(dimensit.Text); else d.DimensiT = null;
+
+            //GIA
+            //d.GIA = Str.CapUpper(gia.Text);
+
+            //Commit
+            db.SubmitChanges();
+        }
+    }
+    protected void save3(StockReceiveDJ ms)
+    {
+        var d = db.StockReceiveDJ_Stone3.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            d.TotalButir = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+            d.TotalCarat = Convert.ToDecimal(totalcarat.Text);
+            d.CaratButir = d.TotalButir > 0 ? d.TotalCarat / d.TotalButir : 0;
+
+            //Dimensi
+            d.DimensiP = Convert.ToDecimal(dimensip.Text);
+            if (dimensil.Text != "") d.DimensiL = Convert.ToDecimal(dimensil.Text); else d.DimensiL = null;
+            if (dimensit.Text != "") d.DimensiT = Convert.ToDecimal(dimensit.Text); else d.DimensiT = null;
+
+            //GIA
+            d.GIA = Str.CapUpper(gia.Text);
+            if (tglGIA.Text.Trim() != "") { d.TglGIA = Convert.ToDateTime(tglGIA.Text.Trim()); }
+
+            //Commit
+            db.SubmitChanges();
+        }
+    }
+    protected void save4(StockReceiveDJ ms)
+    {
+        var d = db.StockReceiveDJ_Stone4.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            d.TotalButir = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+            d.TotalCarat = Convert.ToDecimal(totalcarat.Text);
+            d.CaratButir = d.TotalButir > 0 ? d.TotalCarat / d.TotalButir : 0;
+
+            //Dimensi
+            d.DimensiP = Convert.ToDecimal(dimensip.Text);
+            if (dimensil.Text != "") d.DimensiL = Convert.ToDecimal(dimensil.Text); else d.DimensiL = null;
+            if (dimensit.Text != "") d.DimensiT = Convert.ToDecimal(dimensit.Text); else d.DimensiT = null;
+
+            //GIA
+            // d.GIA = Str.CapUpper(gia.Text);
+
+            //Commit
+            db.SubmitChanges();
+
+            Db.Execute("UPDATE StockReceiveDJ_Stone4 SET GIA =  '" + Str.CapUpper(gia.Text) + "' WHERE ID = '" + d.ID.ToString() + "' ", Db.Cnn_DB);
+        }
+    }
+    protected void save5(StockReceiveDJ ms)
+    {
+        var d = db.StockReceiveDJ_Stone5.SingleOrDefault(p => p.IDForm == myID && p.ID == myTableID);
+        if (d == null) LinkError();
+        else
+        {
+            d.TotalButir = Convert.ToInt32(totalbutir.Text.Replace(".", ""));
+            d.TotalCarat = Convert.ToDecimal(totalcarat.Text);
+            d.CaratButir = d.TotalButir > 0 ? d.TotalCarat / d.TotalButir : 0;
+
+            //Dimensi
+            d.DimensiP = Convert.ToDecimal(dimensip.Text);
+            if (dimensil.Text != "") d.DimensiL = Convert.ToDecimal(dimensil.Text); else d.DimensiL = null;
+            if (dimensit.Text != "") d.DimensiT = Convert.ToDecimal(dimensit.Text); else d.DimensiT = null;
+
+            //GIA
+            //d.GIA = Str.CapUpper(gia.Text);
+
+            //Commit
+            db.SubmitChanges();
+        }
+    }
+}

@@ -1,0 +1,59 @@
+﻿<%@ page language="C#" masterpagefile="~/MasterPage.master" autoeventwireup="true" codefile="Design_Picture.aspx.cs" inherits="Page_Register_Design_Picture" %>
+
+<%@ register src="MenuDesign.ascx" tagname="Menu" tagprefix="uc1" %>
+
+<asp:content contentplaceholderid="h1" runat="server">
+	Diamond Jewellery
+</asp:content>
+<asp:content contentplaceholderid="h1_st" runat="server">
+	Register
+</asp:content>
+
+<asp:content contentplaceholderid="content" runat="server">
+	<uc1:menu id="menu" runat="server" />
+	<p>
+		<span class="text-muted">Nomor :</span><br />
+		<span class="text-lg" id="header_nomor" runat="server" />
+	</p>
+	<hr />
+    <div id="pricing_ERR" runat="server" visible="false">
+		<i class="icon-warning-sign icon-5x pull-left text-red"></i>
+		<h4>Pricing Invalid</h4>
+		<p class="text-muted">
+			Transaksi tidak bisa di-input ke dalam sistem.<br />
+			Komponen pricing yang belum diatur : <span id="sebab" runat="server" class="text-bold text-red" />
+		</p>
+		<div class="clearfix"></div>
+		<hr />
+	</div>
+	<form runat="server">
+        <p id="err" runat="server" class="text-bold text-danger">
+			
+		</p>
+		<p class="text-muted">
+			Max. Size : 
+			<span id="kb" runat="server" class="text-bold text-danger" />
+		</p>
+		<table class="table-form">
+			<tr>
+				<td>Product Picture</td>
+				<td>:</td>
+				<td>
+					<asp:fileupload id="imgpicture" runat="server" cssclass="form-control" />
+				</td>
+				<td>
+					<span id="imgpicture_ERR" runat="server" class="text-validator" visible="false">Format</span>
+				</td>
+				<td id="imgpicture_format" runat="server" class="text-muted text-sm" />
+			</tr>
+		</table>
+		<div class="button-inline">
+			<button id="save" runat="server" class="btn btn-primary" onserverclick="save_Click">
+				<i class="icon-arrow-right"></i>
+				Next Step
+			</button>
+			<span id="dir_ERR" runat="server" class="text-validator" visible="false">Folder Error : </span>
+		</div>
+	</form>
+</asp:content>
+

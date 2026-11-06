@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Business/ProductItemCreate.aspx" hash="fffffff60a01aa96" filehash="30442653e64bc73" flags="110000" assembly="App_Web_productitemcreate.aspx.f388c678" type="ASP.page_business_productitemcreate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Business/ProductItemCreate.aspx" />
+        <filedep name="/SetupChar/Page/Business/ProductItemCreate.aspx.cs" />
+    </filedeps>
+</preserve>

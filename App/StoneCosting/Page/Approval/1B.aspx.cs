@@ -1,0 +1,526 @@
+﻿using System;
+using System.Linq;
+using System.Linq.Dynamic;
+using System.Web.UI.WebControls;
+
+public partial class Page_Approval_1B : System.Web.UI.Page {
+	private Map_DB _db;
+
+	private Map_DB db
+	{
+	    get
+	    {
+	        if (_db == null)
+	            _db = new Map_DB();
+	        return _db;
+	    }
+	}
+
+	public override void Dispose()
+	{
+	    if (db != null)
+	        db.Dispose();
+	    base.Dispose();
+	}
+	protected void Page_Load(object sender, EventArgs e) {
+		App.Protect();
+		App.ProtectRole(Role.Manager);
+
+		if (!IsPostBack) {
+			//Role Protection
+			App.TableRole(tb, Role.Operator);
+
+            //DLC
+            DLC.Parcel101(parcel01);
+            DLC.Parcel102(parcel02, true);
+            DLC.Parcel103(parcel03);
+            DLC.Parcel104(parcel04);
+            DLC.Parcel105(parcel05);
+            DLC.Parcel106(parcel06);
+            DLC.Parcel107(parcel07);
+
+            datepicker.Text = Str.Tgl(DateDrv.AwalBulan());
+            datepicker2.Text = Str.Tgl(DateTime.Now);
+            status.SelectedValue = "2";
+
+			//Generate
+			fillFilter();
+			fillTable(sender, e);
+		}
+	}
+
+	//Filter
+	protected void refreshPage(object sender, EventArgs e)
+    {
+		string href = App.RefreshURL(this);
+
+		//Customize-Qstr
+		href += "&display=" + display.SelectedIndex;
+        href += "&kw=" + kw.Text;
+        href += "&parcel01=" + parcel01.SelectedIndex;
+        href += "&parcel02=" + parcel02.SelectedIndex;
+        href += "&parcel03=" + parcel03.SelectedIndex;
+        href += "&parcel04=" + parcel04.SelectedIndex;
+        href += "&parcel05=" + parcel05.SelectedIndex;
+        href += "&parcel06=" + parcel06.SelectedIndex;
+        href += "&parcel07=" + parcel07.SelectedIndex;
+        href += "&status=" + status.SelectedIndex;
+        href += "&dari=" + datepicker.Text;
+        href += "&sampai=" + datepicker2.Text;
+
+		Response.Redirect(href);
+	}
+	protected void fillFilter() {
+		if (App.Refresh(this)) {
+            kw.Text = Request.QueryString["kw"];
+            parcel01.SelectedIndex = Convert.ToInt32(Request.QueryString["parcel01"]);
+            parcel02.SelectedIndex = Convert.ToInt32(Request.QueryString["parcel02"]);
+            parcel03.SelectedIndex = Convert.ToInt32(Request.QueryString["parcel03"]);
+            parcel04.SelectedIndex = Convert.ToInt32(Request.QueryString["parcel04"]);
+            parcel05.SelectedIndex = Convert.ToInt32(Request.QueryString["parcel05"]);
+            parcel06.SelectedIndex = Convert.ToInt32(Request.QueryString["parcel06"]);
+            parcel07.SelectedIndex = Convert.ToInt32(Request.QueryString["parcel07"]);
+            status.SelectedIndex = Convert.ToInt32(Request.QueryString["status"]);
+            datepicker.Text = Request.QueryString["dari"];
+            datepicker2.Text = Request.QueryString["sampai"];
+			display.SelectedIndex = Convert.ToInt32(Request.QueryString["display"]);
+		}
+	}
+
+	//Display Table
+	protected void fillTable(object sender, EventArgs e) {
+		//SELECT
+		var rs = from p in db.Stone1B
+				 orderby p.Nama
+				 where !p.Disable //&& p.StatusCosting == 2
+				 select p;
+
+		//NO-RESULT
+		//zero.Visible = rs.Count() == 0;
+		//form_area.Visible = !zero.Visible;
+
+        if (parcel01.SelectedIndex > 0) rs = rs.Where(p => p.Parcel01 == parcel01.SelectedIndex);
+        if (parcel02.SelectedIndex > 0) rs = rs.Where(p => p.Parcel02 == parcel02.SelectedIndex);
+        if (parcel03.SelectedIndex > 0) rs = rs.Where(p => p.Parcel03 == parcel03.SelectedIndex);
+        if (parcel04.SelectedIndex > 0) rs = rs.Where(p => p.Parcel04 == parcel04.SelectedIndex);
+        if (parcel05.SelectedIndex > 0) rs = rs.Where(p => p.Parcel05 == parcel05.SelectedIndex);
+        if (parcel06.SelectedIndex > 0) rs = rs.Where(p => p.Parcel06 == parcel06.SelectedIndex);
+        if (parcel07.SelectedIndex > 0) rs = rs.Where(p => p.Parcel07 == parcel07.SelectedIndex);
+
+        if (kw.Text != "")
+        {
+            rs = rs.Where(p => p.KodeParcel.Contains(kw.Text) || p.Nama.Contains(kw.Text));
+        }
+
+        DateTime start;
+        DateTime end;
+
+        if (datepicker.Text != "" && datepicker2.Text != "")
+        {
+            start = Convert.ToDateTime(datepicker.Text);
+            end = Convert.ToDateTime(datepicker2.Text);
+            rs = rs.Where(p => p.StoneCosting1B.OperatorTgl >= start && p.StoneCosting1B.OperatorTgl < end.AddDays(1));
+        }
+
+        if (status.SelectedValue == "1")
+            rs = rs.Where(p => p.StatusCosting == 0);
+        else if (status.SelectedValue == "2")
+            rs = rs.Where(p => p.StatusCosting == 2);
+
+        if (rs.Count() == 0) App.TableNoResult(tb);
+
+		//RESULT
+		int index = 1;
+		foreach (var r in rs) {
+			if (!Response.IsClientConnected) break;
+
+			TableRow tr = new TableRow();
+			TableCell td;
+
+			if (Role.Operator) {
+				td = new TableCell();
+				td.Text = TD_HyperLink(r);
+				tr.Cells.Add(td);
+			}
+
+			td = new TableCell();
+			td.Text = "<p>" + index++.ToString() + ".</p>";
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_Nama(r);
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_Operator(r.StoneCosting1B);
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_Harga(r.StoneCosting1B);
+			td.CssClass = "text-right";
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_HargaPending(r.StoneCosting1B);
+			td.CssClass = "text-right";
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_Mutasi(r.StoneCosting1B);
+			td.CssClass = "text-right";
+			tr.Cells.Add(td);
+
+			tb.Rows.Add(tr);
+
+			//Process-ID
+			process_id.Items.Add(r.ID.ToString());
+		}
+	}
+	protected string TD_HyperLink(Stone1B r) {
+		string x = string.Empty;
+
+        if (r.StatusCosting == 2)
+        {
+            x += "<a class=\"btn btn-info\" target=\"_blank\" href=\"../Update/Process_1B.aspx?id=" + r.ID + "\">";
+            x += "  <i class=\"icon-pencil\"></i> ";
+            x += "  Update";
+            x += "</a>";
+        }
+
+		return x;
+	}
+	protected string TD_Nama(Stone1B r) {
+		string x = string.Empty;
+
+		x += "<p><strong>" + r.Nama + "</strong></p>";
+		if (r.KodeParcel != r.Nama)
+			x += "<p class=\"text-muted\">" + r.KodeParcel + "</p>";
+
+		return x;
+	}
+	protected string TD_Operator(StoneCosting1B r) {
+		string x = string.Empty;
+
+		x += "<p class=\"text-sm\"><strong>" + r.Operator + "</strong></p>";
+		x += "<p class=\"text-sm\">" + Str.FullDate(r.OperatorTgl) + "</p>";
+
+		return x;
+	}
+	protected string TD_Harga(StoneCosting1B r) {
+		string x = string.Empty;
+
+		if (display.SelectedIndex == 0) {
+			x += "<p class=\"text-success text-lg\">";
+			x += Str.Number2(r.Harga);
+			x += "</p>";
+		}
+		else {
+			x += "<p class=\"text-success\">" + Str.Number2(r.InputH) + "</p>";
+			x += "<p class=\"text-success\">" + Str.Number2(r.InputP) + "</p>";
+		}
+
+		return x;
+	}
+	protected string TD_HargaPending(StoneCosting1B r) {
+		string x = string.Empty;
+
+		if (display.SelectedIndex == 0) {
+			x += "<p class=\"text-danger text-lg\">";
+			x += Str.Number2(r.HargaPending);
+			x += "</p>";
+		}
+		else {
+			x += "<p class=\"text-danger\">" + Str.Number2(r.PendingH) + "</p>";
+			x += "<p class=\"text-danger\">" + Str.Number2(r.PendingP) + "</p>";
+		}
+
+		return x;
+	}
+	protected string TD_Mutasi(StoneCosting1B r) {
+		string x = string.Empty;
+
+		if (r.MutasiPersen.HasValue) {
+			string sgn = r.MutasiPersen > 0 ? "+" : "";
+			string css = r.MutasiPersen > 10 || r.MutasiPersen < -10 ? "text-red" : "";
+
+			x += "<p class=\"" + css + " text-lg\">";
+			x += sgn;
+			x += Str.Number2(r.MutasiPersen);
+			x += "%";
+			x += "</p>";
+		}
+		else if (r.Mutasi.HasValue) {
+			string sgn = r.Mutasi > 0 ? "+" : "";
+
+			x += "<p class=\"text-lg\">";
+			x += sgn;
+			x += Str.Number2(r.Mutasi);
+			x += "</p>";
+		}
+
+		return x;
+	}
+
+	//Save
+	protected void save_Click(object sender, EventArgs e) {
+		var rs = from p in process_id.Items.Cast<ListItem>()
+				 select p.Value;
+
+		foreach (var r in rs) {
+			int myID = Convert.ToInt32(r);
+
+			var d = db.StoneCosting1B.SingleOrDefault(
+				p =>
+				p.ID == myID &&
+				p.Stone1B.Disable == false &&
+				p.Stone1B.StatusCosting == 2
+				);
+
+			if (d != null) {
+				decimal? HargaLama = d.Harga;
+				decimal? HargaBaru = d.HargaPending;
+
+				d.Harga = d.HargaPending;
+				d.HargaPending = null;
+
+				d.InputH = d.PendingH; d.PendingH = null;
+				d.InputP = d.PendingP; d.PendingP = null;
+
+				//Mutasi
+				d.Mutasi = null;
+				d.MutasiPersen = null;
+
+				//Status
+				d.Stone1B.StatusCosting = 0;
+				d.Stone1B.StatusPricing = 1;
+
+				//User-Info
+				d.Approval = App.UserNama;
+				d.ApprovalTgl = DateTime.Now;
+
+				//Commit
+				db.SubmitChanges();
+
+				//Post-Process
+				Modal(d);
+				Log(d.ID, HargaLama, HargaBaru);
+
+
+                //Update Rappaport R
+                var n = db.StonePricing1B.SingleOrDefault(
+                    p =>
+                    p.ID == myID &&
+                    p.Stone1B.Disable == false
+                    );
+
+                if (n != null)
+                {
+
+                    //Rumus Rapaport
+                    /*n.InputH = d.InputH;
+                    n.Harga = n.InputP!=null ? d.InputH + (n.InputH * (n.InputP / 100)) : d.InputH;
+                    //n.Harga = d.HargaPending;
+                    n.HargaPending = null;*/
+
+                    n.PendingH = d.InputH;
+                    n.PendingP = n.InputP != null ? n.InputP : 0;
+                    n.HargaPending = n.InputP != null ? d.InputH + (n.PendingH * (n.InputP / 100)) : d.PendingH;
+                    n.Stone1B.StatusPricing = 2;
+
+                    //n.InputH = n.PendingH; n.PendingH = null;
+                    //n.InputP = n.PendingP; n.PendingP = null;
+
+                    //Mutasi
+                    n.Mutasi = null;
+                    n.MutasiPersen = null;
+
+                    //Selisih
+                    if (n.Modal.HasValue)
+                    {
+                        n.Selisih = n.Harga - n.Modal;
+                        n.SelisihPersen = n.Modal != 0 ? (n.Selisih / n.Modal) * 100 : null;
+                    }
+
+                    //User-Info
+                    n.Approval = App.UserNama;
+                    n.ApprovalTgl = DateTime.Now;
+
+                    //Commit
+                    db.SubmitChanges();
+
+                    //Post-Process
+                    LogPricing(n.ID, HargaLama, HargaBaru);
+
+                    //// Fungsi untuk posting data Costing Stone ke manufacture
+                    try
+                    {
+                        var rsCB = (from p in db.CompanyBrand
+                                    where p.Draft == false && p.Disable == false
+                                    select p.Nama).First();
+
+                        string CB = ""; /// mondial, franknco, missmondial, thepalace
+                        if (rsCB.Count() > 0) { CB = rsCB.ToLower(); }
+
+                        if (CB == "mondial" || CB == "miss mondial")
+                        {
+                            string SPname = "sp_poststonecosting";
+
+                            Db.Execute("EXEC " + SPname + " "
+                                + " @stone_type = N'" + "1B" + "'"
+                                + ",@stone_name = N'" + d.Stone1B.Nama + "'"
+                                + ",@stone_id = N'" + d.ID.ToString() + "'"
+                                + ", " + "@flag_all = 0"
+                                , Db.Cnn_DB);
+                        }
+                    }
+                    catch (Exception ex) { }
+
+                }
+			}
+		}
+
+		//Redirect
+		App.Reload(this);
+	}
+
+    //Cancel
+    protected void cancel_Click(object sender, EventArgs e)
+    {
+        var rs = from p in process_id.Items.Cast<ListItem>()
+                 select p.Value;
+
+        foreach (var r in rs)
+        {
+            int myID = Convert.ToInt32(r);
+
+            var d = db.StoneCosting1B.SingleOrDefault(
+                p =>
+                p.ID == myID &&
+                p.Stone1B.Disable == false &&
+                p.Stone1B.StatusCosting == 2
+                );
+
+            if (d != null)
+            {
+                decimal? HargaLama = d.Harga;
+                decimal? HargaBaru = d.HargaPending;
+
+                d.HargaPending = null;
+
+                //d.InputH = d.PendingH; 
+                d.PendingH = null;
+                //d.InputP = d.PendingP; 
+                d.PendingP = null;
+
+                //Mutasi
+                d.Mutasi = null;
+                d.MutasiPersen = null;
+
+                //Status
+                d.Stone1B.StatusCosting = 0;
+                //d.Stone1B.StatusPricing = 1;
+
+                //User-Info
+                d.Approval = App.UserNama;
+                d.ApprovalTgl = DateTime.Now;
+
+                //Commit
+                db.SubmitChanges();
+            }
+        }
+
+        //Redirect
+        App.Reload(this);
+    }
+
+	protected void Modal(StoneCosting1B costing) {
+		var d = db.StonePricing1B.SingleOrDefault(p => p.ID == costing.ID);
+		if (d == null) {
+            try
+            {
+                StonePricing1B n = new StonePricing1B();
+                n.ID = costing.ID;
+                n.Modal = costing.Harga;
+                n.ModalH = costing.InputH;
+                n.ModalP = costing.InputP;
+            }
+            catch
+            {
+                DLC.Reseed("StonePricingLog1B");
+
+                StonePricing1B n = new StonePricing1B();
+                n.ID = costing.ID;
+                n.Modal = costing.Harga;
+                n.ModalH = costing.InputH;
+                n.ModalP = costing.InputP;
+            }
+		}
+		else {
+			d.Modal = costing.Harga;
+			d.ModalH = costing.InputH;
+			d.ModalP = costing.InputP;
+			if (d.Harga.HasValue) {
+				d.Selisih = d.Harga - d.Modal;
+				d.SelisihPersen = d.Modal != 0 ? (d.Selisih / d.Modal) * 100 : null;
+			}
+		}
+
+		//Commit
+		db.SubmitChanges();
+	}
+	protected void Log(int IDMaster, decimal? HargaLama, decimal? HargaBaru) {
+		if (HargaLama != HargaBaru) {
+            try
+            {
+                StoneCostingLog1B n = new StoneCostingLog1B();
+
+                n.IDMaster = IDMaster;
+                n.Tgl = DateTime.Now;
+                n.Approval = App.UserNama;
+
+                n.HargaLama = HargaLama.HasValue ? HargaLama.Value : 0;
+                n.HargaBaru = HargaBaru.HasValue ? HargaBaru.Value : 0;
+
+                //Commit
+                db.StoneCostingLog1B.InsertOnSubmit(n);
+                db.SubmitChanges();
+            }
+            catch
+            {
+                DLC.Reseed("StoneCostingLog1B");
+
+                StoneCostingLog1B n = new StoneCostingLog1B();
+
+                n.IDMaster = IDMaster;
+                n.Tgl = DateTime.Now;
+                n.Approval = App.UserNama;
+
+                n.HargaLama = HargaLama.HasValue ? HargaLama.Value : 0;
+                n.HargaBaru = HargaBaru.HasValue ? HargaBaru.Value : 0;
+
+                //Commit
+                db.StoneCostingLog1B.InsertOnSubmit(n);
+                db.SubmitChanges();
+            }
+		}
+	}
+
+    protected void LogPricing(int IDMaster, decimal? HargaLama, decimal? HargaBaru)
+    {
+        if (HargaLama != HargaBaru)
+        {
+            StonePricingLog1B n = new StonePricingLog1B();
+
+            n.IDMaster = IDMaster;
+            n.Tgl = DateTime.Now;
+            n.Approval = App.UserNama;
+
+            n.HargaLama = HargaLama.HasValue ? HargaLama.Value : 0;
+            n.HargaBaru = HargaBaru.HasValue ? HargaBaru.Value : 0;
+
+            //Commit
+            db.StonePricingLog1B.InsertOnSubmit(n);
+            db.SubmitChanges();
+        }
+    }
+}

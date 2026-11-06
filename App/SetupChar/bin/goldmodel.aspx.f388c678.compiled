@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Business/GoldModel.aspx" hash="fffffff60a01aa96" filehash="aec4e9824f0b302d" flags="110000" assembly="App_Web_goldmodel.aspx.f388c678" type="ASP.page_business_goldmodel_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterPage.master" />
+        <filedep name="/SetupChar/MasterPage.master.cs" />
+        <filedep name="/SetupChar/Menu.ascx" />
+        <filedep name="/SetupChar/Menu.ascx.cs" />
+        <filedep name="/SetupChar/Page/Business/GoldModel.aspx" />
+        <filedep name="/SetupChar/Page/Business/GoldModel.aspx.cs" />
+    </filedeps>
+</preserve>

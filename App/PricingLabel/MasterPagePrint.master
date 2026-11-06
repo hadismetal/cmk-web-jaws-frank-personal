@@ -1,0 +1,22 @@
+﻿<%@ master language="C#" autoeventwireup="true" codefile="MasterPagePrint.master.cs" inherits="MasterPage" %>
+
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+	<title></title>
+	
+</head>
+<body class="page">
+	
+
+	<!-- Content -->
+	<div class="container">
+		
+		<asp:contentplaceholder id="content" runat="server" />
+	</div>
+
+	
+</body>
+</html>

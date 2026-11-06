@@ -1,0 +1,31 @@
+﻿using System;
+using System.Linq;
+using System.Web.UI.WebControls;
+using System.Data;
+
+public partial class Page_Summary : System.Web.UI.Page {
+	private Map_AC _db;
+
+	private Map_AC db
+	{
+	    get
+	    {
+	        if (_db == null)
+	            _db = new Map_AC();
+	        return _db;
+	    }
+	}
+
+	public override void Dispose()
+	{
+	    if (db != null)
+	        db.Dispose();
+	    base.Dispose();
+	}
+	protected void Page_Load(object sender, EventArgs e) {
+		App.Protect();
+
+		if (!IsPostBack) {
+		}
+	}
+}

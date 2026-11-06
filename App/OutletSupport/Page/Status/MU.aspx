@@ -1,0 +1,31 @@
+﻿<%@ page language="C#" masterpagefile="~/MasterPage.master" autoeventwireup="true" codefile="MU.aspx.cs" inherits="Page_Status_MU" %>
+
+<asp:content contentplaceholderid="h1" runat="server">
+	Resell Mark-Up System
+</asp:content>
+<asp:content contentplaceholderid="h1_st" runat="server">
+	Status
+</asp:content>
+
+<asp:content contentplaceholderid="content" runat="server">
+	<form runat="server" class="form-inline">
+		<div class="form-group">
+			<div class="hidden-xs">&nbsp;</div>
+			<div>
+				<button id="go" runat="server" class="btn btn-primary" onserverclick="refreshPage">
+					<i class="icon-search"></i>
+					Display
+				</button>
+			</div>
+		</div>
+	</form>
+	<div class="table-responsive">
+		<asp:table id="tb" runat="server" cssclass="table-list">
+			<asp:tableheaderrow>
+				<asp:tableheadercell width="90" />
+				<asp:tableheadercell width="130" cssclass="text-right">Persen</asp:tableheadercell>
+			</asp:tableheaderrow>
+		</asp:table>
+	</div>
+</asp:content>
+

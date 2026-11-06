@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Information/TargetGenderUpdate.aspx" hash="fffffff60a01aa96" filehash="b26e2ed3d5412e2c" flags="110000" assembly="App_Web_targetgenderupdate.aspx.2e6da1b0" type="ASP.page_information_targetgenderupdate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Information/TargetGenderUpdate.aspx" />
+        <filedep name="/SetupChar/Page/Information/TargetGenderUpdate.aspx.cs" />
+    </filedeps>
+</preserve>

@@ -1,0 +1,57 @@
+﻿using System;
+using System.Linq;
+using System.Web.UI.WebControls;
+using System.Data;
+
+public partial class Page_Summary : System.Web.UI.Page {
+	private Map_DB _db;
+
+	private Map_DB db
+	{
+	    get
+	    {
+	        if (_db == null)
+	            _db = new Map_DB();
+	        return _db;
+	    }
+	}
+
+	public override void Dispose()
+	{
+	    if (db != null)
+	        db.Dispose();
+	    base.Dispose();
+	}
+	protected void Page_Load(object sender, EventArgs e) {
+		App.Protect();
+
+		if (!IsPostBack) {
+            CheckLokasi();
+		}
+	}
+
+    protected void refreshPage(object sender, EventArgs e)
+    {
+        string href = "GJ_Rekap.aspx";
+
+        //Customize-Qstr
+        href += "?tipe=" + locationtype.Text;
+
+        Response.Redirect(href);
+    }
+    protected void CheckLokasi()
+    {
+        int UserID = App.UserID;
+        var d = from p in db.DataAdminSales
+                where p.IDUser == UserID
+                select p;
+        if (d.Count() > 0)
+        {
+            var x = d.First();
+            string href = "";
+
+            href = "GJ_Rekap.aspx?idlokasi=" + x.IDLokasi + "&tipe=" + x.TipeLokasi;
+            Response.Redirect(href);
+        }
+    }
+}

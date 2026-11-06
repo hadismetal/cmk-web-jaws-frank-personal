@@ -1,0 +1,26 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterPageExport.master.cs" Inherits="MasterPageExport" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title></title>
+    <asp:ContentPlaceHolder id="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+   
+    <!-- Content -->
+	<div class="container">
+		<h1>
+			<small id="module" runat="server" />
+			<br />
+			<asp:contentplaceholder id="h1" runat="server" />
+			<small>
+				<asp:contentplaceholder id="h1_st" runat="server" />
+			</small>
+		</h1>
+		<asp:contentplaceholder id="content" runat="server" />
+	</div>
+</body>
+</html>

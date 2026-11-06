@@ -1,0 +1,101 @@
+﻿@charset "utf-8";
+body{	
+	width: 1200px;
+	/*margin-left: 70px;*/
+	font-size: 16px;
+	margin: 0px auto 0px auto;
+}
+table
+{
+border-collapse:collapse;
+}
+table,th, td
+{
+border: 1px solid black;
+font-size: 16px;
+}
+#judul1 {
+}
+.judul_kiri {
+	float:left;
+}
+.judul_kanan {
+	float:right;
+	width: 300px;
+}
+.judul_kanan2 {
+float: right;
+width: 300px;
+}
+
+.table_invoice
+{
+	border: 0px solid #000;
+	width: 100%;
+}
+
+.table_invoice td
+{
+	padding: 5px;
+	border: 0px solid #000;
+	font-weight: bold;
+}
+
+.nominal
+{
+	text-align: right;
+}
+
+.clear{
+	clear:both;
+}
+.sub_jdul {
+	border-top-width: 2px;
+	border-top-style: solid;
+	border-top-color: #000;
+}
+#menu1 {
+	margin-top:20px;
+	border-top-width: 1px;
+	border-top-style: solid;
+	border-top-color: #000;
+}
+.dftr_menu{
+	padding-top:10px;
+	padding-bottom:10px;
+	padding-left:20px;
+	padding-right:20px;
+	float:left;
+}
+.mnu_bwh{
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #000;
+}
+
+.table_asp
+{
+	width: 100%;
+	text-align: center;
+	height: 60px;
+	font-size: 12px;
+}
+.table_asp td
+{
+	border: none;
+}
+
+.period
+{	
+	border-bottom: solid 1px #000 !important;
+}
+
+.border_right
+{	
+	border-right: solid 1px #000 !important;
+}
+
+.font11
+{
+	font-size: 12px;
+}

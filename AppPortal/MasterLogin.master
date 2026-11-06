@@ -1,0 +1,54 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeFile="MasterLogin.master.cs" Inherits="MasterLogin" %>
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="icon" href="Images/favicon/franknco/favicon.ico">
+    <title>Frank & co.</title>
+    <style>
+        .main-page {
+            margin-top: 7.5%
+        }
+
+        .image-login {
+            max-width: 200px;
+            max-height: 50px;
+        }
+
+        .card-header, .card-footer{
+            background-color: white;
+        }
+		body{
+			background-color: #c2d6de;
+		}
+    </style>
+</head>
+<body>
+    <main role="main">
+        <div class="container main-page">
+            <div class="col-md-4 offset-md-4">
+                <asp:ContentPlaceHolder ID="content" runat="server" />
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="col-xs-12 text-center">
+            <small class="text-muted">PT Central Mega Kencana &copy; 2020</small>
+        </div>
+    </footer>
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+</body>
+</html>

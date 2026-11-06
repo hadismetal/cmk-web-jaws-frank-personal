@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Settings/ProductLevelUpdate.aspx" hash="fffffff60a01aa96" filehash="240375e293833c10" flags="110000" assembly="App_Web_productlevelupdate.aspx.e80017ca" type="ASP.page_settings_productlevelupdate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Settings/ProductLevelUpdate.aspx" />
+        <filedep name="/SetupChar/Page/Settings/ProductLevelUpdate.aspx.cs" />
+    </filedeps>
+</preserve>

@@ -1,0 +1,248 @@
+﻿<%@ Page Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="SalesRekap2.aspx.cs" Inherits="Page_Summary" %>
+
+<asp:Content ContentPlaceHolderID="h1" runat="server">
+    Laporan Penjualan
+</asp:Content>
+
+<asp:Content ContentPlaceHolderID="content" runat="server">
+    <style>
+    .table-responsive {
+        max-height: 500px;
+        overflow-y: auto;
+        overflow-x: auto;
+        border: 1px solid #ccc;
+    }
+
+    .table-list {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .table-list .freeze-row th {
+        position: sticky;
+        top: 0;
+        background-color: #f1f1f1;
+        z-index: 2;
+        padding: 10px;
+    }
+
+
+    </style>
+    <div id="zero" runat="server" visible="false">
+        <i class="icon-ok icon-5x pull-left text-success"></i>
+        <h4>Proses Selesai</h4>
+        <p class="text-muted">
+            Tidak ada transaksi penjualan
+        </p>
+        <div class="clearfix"></div>
+        <hr />
+    </div>
+    <div id="form_area" runat="server">
+        <form id="Form1" runat="server" class="form-inline">
+            <div class="form-group">
+                <div class="text-muted">
+                    Search :
+                </div>
+                <asp:TextBox ID="kw" runat="server" CssClass="form-control" Width="300" placeholder="Input Keyword..." />
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:TextBox ID="dari" runat="server" CssClass="form-control text-center" Width="110" placeholder="Dari" />
+                <script>
+                    $(document).ready(function () { $('#<%=dari.ClientID%>').datepicker({ format: 'dd-mm-yyyy' }); });
+                </script>
+
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:TextBox ID="sampai" runat="server" CssClass="form-control text-center" Width="110" placeholder="Sampai" />
+                <script>
+                    $(document).ready(function () { $('#<%=sampai.ClientID%>').datepicker({ format: 'dd-mm-yyyy' }); });
+                </script>
+
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:DropDownList ID="status" runat="server" CssClass="form-control" Width="175">
+                    <asp:ListItem Value="0">All</asp:ListItem>
+                    <asp:ListItem Value="1">Active</asp:ListItem>
+                    <asp:ListItem Value="2">Void</asp:ListItem>
+                </asp:DropDownList>
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:DropDownList ID="payment" runat="server" CssClass="form-control" Width="175">
+                    <asp:ListItem Value="0">Payment</asp:ListItem>
+                </asp:DropDownList>
+            </div>
+            <div class="clearfix">
+                <br class="hidden-xs" />
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    Characteristic Product :
+                </div>
+                <asp:DropDownList ID="productitem" runat="server" CssClass="form-control" Width="175">
+                    <asp:ListItem Value="0">Product Item</asp:ListItem>
+                </asp:DropDownList>
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:DropDownList ID="productcategory" runat="server" CssClass="form-control" Width="175">
+                    <asp:ListItem Value="0">Product Category</asp:ListItem>
+                </asp:DropDownList>
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:DropDownList ID="productsegmen" runat="server" CssClass="form-control" Width="175">
+                    <asp:ListItem Value="0">Segmen</asp:ListItem>
+                </asp:DropDownList>
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:DropDownList ID="filter" runat="server" CssClass="form-control" Width="175">
+                    <asp:ListItem Value="0">Filter</asp:ListItem>
+                    <asp:ListItem Value="1">Basic Item</asp:ListItem>
+                    <asp:ListItem Value="2">Non Basic</asp:ListItem>
+                </asp:DropDownList>
+            </div>
+			<div class="form-group">
+				<div class="text-muted">
+					Tipe Lokasi
+				</div>
+				<asp:DropDownList ID="tipelokasi" runat="server" CssClass="form-control" Width="175" OnSelectedIndexChanged="FillLokasi" AutoPostBack="true">
+					<asp:ListItem Value="">All</asp:ListItem>
+				</asp:DropDownList>
+			</div>
+			<div class="form-group">
+				<div class="text-muted">
+					Kode Lokasi
+				</div>
+				<asp:DropDownList ID="locationcode" runat="server" CssClass="form-control" Width="175" >
+					<asp:ListItem Value="">All</asp:ListItem>
+				</asp:DropDownList>
+			</div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:DropDownList ID="tipeproduct" runat="server" CssClass="form-control" Width="175">
+                    <asp:ListItem Value="">Tipe Product</asp:ListItem>
+                    <asp:ListItem Value="DJ">Diamond Jewellery</asp:ListItem>
+                    <asp:ListItem Value="GJ">Gold Jewellery</asp:ListItem>
+                    <asp:ListItem Value="PG">Plain Gold</asp:ListItem>
+                    <asp:ListItem Value="LD">Loose Diamond</asp:ListItem>
+                </asp:DropDownList>
+            </div>
+            <div class="form-group">
+                <div class="hidden-xs">&nbsp;</div>
+                <div>
+                    <button id="go" runat="server" class="btn btn-primary" onserverclick="refreshPage">
+                        <i class="icon-search"></i>
+                        Display
+                    </button>
+                    <button id="Button2" runat="server" class="btn btn-primary" onserverclick="Export">
+                        <i class="icon-download-alt"></i>
+                        Export
+                    </button>
+                    <%--<button id="Button1" runat="server" class="btn btn-primary" onserverclick="Print">
+                        <i class="icon-print"></i>
+                        Print
+                    </button>--%>
+                </div>
+            </div>
+        </form>
+        <div class="table-responsive">
+            <asp:Table ID="tb" runat="server" CssClass="freeze-table table-list text-sm">
+                <asp:TableHeaderRow class="freeze-row">
+                    <asp:TableHeaderCell Width="40">No.</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="130">Tanggal</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">No. Sales Order</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">No. Referensi</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="170">Lokasi</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">Tipe</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">Level</asp:TableHeaderCell>                    
+                    <asp:TableHeaderCell Width="140">PLU</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">Item</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">Kode Karet</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">Product Category</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="140">Segmen</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="200">Nama Customer</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="200">Kode Customer</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="200">Given To</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Membership</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="200">Sales</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="300">Keterangan</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="130">Tgl Void</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="300">Keterangan Void</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="40">Qty</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">M</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Harga</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="150">Discount Normal Percentage</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="150">Discount Normal Nominal</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="150">Discount Promo Nominal</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="150">Discount Membership Percentage</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Discount Membership Nominal</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Discount Voucher Nominal</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="150">Tipe Voucher Discount</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Nomor Voucher Discount</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Discount Bank Nominal</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="150">Discount Other Nominal</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Discount Round Nominal</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Extra Ring Size</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Fee Extra Ring Size Per Size</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="150">Total Fee Extra Ring Size</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Harga Net</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Price Exclude VAT</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">PPN</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">PPN Pembagi</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Point Received</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Kadar Tukaran Beli</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Total Butir</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Total Carat</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Net Weight</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Cash / Tunai</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Kartu Kredit</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Transfer</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Debit</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Voucher</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Exchange</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Poin</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">DP PO</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="100">Bridestory Pay</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Gift Card</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Laku Emas</asp:TableHeaderCell>
+					<asp:TableHeaderCell Width="100">QRIS</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Xendit</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">QRISLEI</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Ecommerce</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">DOKU</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Cash-A</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Total Terima</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">MDR</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="100">Total Terima setelah MDR</asp:TableHeaderCell>
+                    <asp:TableHeaderCell Width="200">Bank</asp:TableHeaderCell>
+                    <%-- <asp:TableHeaderCell Width="170">EDC</asp:TableHeaderCell> --%>
+                </asp:TableHeaderRow>
+            </asp:Table>
+        </div>
+
+    </div>
+</asp:Content>
+

@@ -1,0 +1,175 @@
+﻿<%@ page language="C#" masterpagefile="~/MasterPage.master" autoeventwireup="true" codefile="5.aspx.cs" inherits="Page_Approval_5" %>
+
+<asp:content contentplaceholderid="h1" runat="server">
+	Pearl
+</asp:content>
+<asp:content contentplaceholderid="h1_st" runat="server">
+	Approval
+</asp:content>
+
+<asp:content contentplaceholderid="content" runat="server">
+     <script>
+        $(document).ready(function () {
+            $('#<%=datepicker.ClientID%>').datepicker({
+                format: 'dd-mm-yyyy'
+            });
+            $('#<%=datepicker2.ClientID%>').datepicker({
+                format: 'dd-mm-yyyy'
+            });
+        });
+    </script>
+
+	<div id="zero" runat="server" visible="false">
+		<i class="icon-ok icon-5x pull-left text-success"></i>
+		<h4>Proses Selesai</h4>
+		<p class="text-muted">
+			Semua data / transaksi dalam kondisi sudah approval.
+		</p>
+		<div class="clearfix"></div>
+		<hr />
+	</div>
+	<div id="form_area" runat="server">
+		<form runat="server" class="form-inline">
+
+		<div class="form-group">
+			<div class="text-muted">
+				Search :
+			</div>
+			<asp:textbox id="kw" runat="server" cssclass="form-control" width="350" placeholder="Input Keyword..." />
+		</div>
+
+         <div class="form-group">
+                <div class="text-muted">
+                    Periode :
+                </div>
+
+                <asp:TextBox CssClass="form-control" type="text" placeholder="Dari" ID="datepicker" runat="server" data-date-format="dd-mm-yyyy" />
+
+            </div>
+            <div class="form-group">
+                <div class="text-muted">
+                    &nbsp;
+                </div>
+                <asp:TextBox CssClass="form-control" type="text" placeholder="Sampai" ID="datepicker2" runat="server" data-date-format="dd-mm-yyyy" />
+            </div>
+            <div class="clearfix">
+                <br class="hidden-xs" />
+            </div>
+		<div class="clearfix">
+			<br class="hidden-xs" />
+		</div>
+
+		<div class="text-muted">
+			Parcel :
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel01" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Code :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel02" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Source :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel03" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Colour :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel04" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Shape :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="clearfix"></div>
+		<div class="form-separator hidden-xs"></div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel05" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Overtone :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel06" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Diameter :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel07" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Surface :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel08" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Luster :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<asp:dropdownlist id="parcel09" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Treatment :</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="clearfix">
+			<br class="hidden-xs" />
+		</div>
+		<div class="form-group">
+			<div class="text-muted">
+				Status :
+			</div>
+			<asp:dropdownlist id="status" runat="server" cssclass="form-control" width="175">
+				<asp:listitem>Semua</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<div class="text-muted">
+				Diurutkan :
+			</div>
+			<asp:dropdownlist id="order" runat="server" cssclass="form-control" width="150">
+				<asp:listitem value="Nama">Nama</asp:listitem>
+				<asp:listitem value="KodeParcel">Kode Parcel</asp:listitem>
+				<asp:listitem value="ID">ID</asp:listitem>
+			</asp:dropdownlist>
+			<div class="text-00 visible-xs">&nbsp;</div>
+			<asp:dropdownlist id="orderby" runat="server" cssclass="form-control" width="100">
+				<asp:listitem>ASC</asp:listitem>
+				<asp:listitem>DESC</asp:listitem>
+			</asp:dropdownlist>
+		</div>
+		<div class="form-group">
+			<div class="hidden-xs">&nbsp;</div>
+			<div>
+				<button id="go" runat="server" class="btn btn-primary" onserverclick="refreshPage">
+					<i class="icon-search"></i>
+					Display
+				</button>
+			</div>
+		</div>
+
+			<div class="table-responsive">
+				<asp:table id="tb" runat="server" cssclass="table-list">
+					<asp:tableheaderrow>
+						<asp:tableheadercell width="100" />
+						<asp:tableheadercell width="40">No.</asp:tableheadercell>
+						<asp:tableheadercell width="250">Nama</asp:tableheadercell>
+						<asp:tableheadercell width="175">Operator</asp:tableheadercell>
+						<asp:tableheadercell width="130" cssclass="text-right"><small>USD</small> Harga</asp:tableheadercell>
+						<asp:tableheadercell width="130" cssclass="text-right"><small>USD</small> Pending</asp:tableheadercell>
+						<asp:tableheadercell width="150" cssclass="text-right">Mutasi</asp:tableheadercell>
+					</asp:tableheaderrow>
+				</asp:table>
+			</div>
+			<div class="button-left">
+				<asp:dropdownlist id="process_id" runat="server" visible="false" />
+				<button id="save" runat="server" class="btn btn-success" onserverclick="save_Click">
+					<i class="icon-fixed-width icon-check"></i>
+					Approved All
+				</button>
+                &nbsp;<button id="cancel" runat="server" class="btn btn-success" onserverclick="cancel_Click">
+                    <i class="icon-fixed-width icon-check"></i>
+                    Cancel All
+                </button>
+			</div>
+		</form>
+	</div>
+</asp:content>
+

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/MasterReport.master" hash="fffffff60a01aa96" filehash="70a11b6068ba78d7" flags="110000" assembly="App_Web_masterreport.master.cdcab7d2" type="ASP.masterreport_master">
+    <filedeps>
+        <filedep name="/SetupChar/MasterReport.master" />
+        <filedep name="/SetupChar/MasterReport.master.cs" />
+    </filedeps>
+</preserve>

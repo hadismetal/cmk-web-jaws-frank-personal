@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Information/DesignProcess.aspx" hash="fffffff60a01aa96" filehash="56688b1802bc7db4" flags="110000" assembly="App_Web_designprocess.aspx.2e6da1b0" type="ASP.page_information_designprocess_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterPage.master" />
+        <filedep name="/SetupChar/MasterPage.master.cs" />
+        <filedep name="/SetupChar/Menu.ascx" />
+        <filedep name="/SetupChar/Menu.ascx.cs" />
+        <filedep name="/SetupChar/Page/Information/DesignProcess.aspx" />
+        <filedep name="/SetupChar/Page/Information/DesignProcess.aspx.cs" />
+    </filedeps>
+</preserve>

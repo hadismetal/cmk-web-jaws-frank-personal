@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/ProductStoneRequest/MasterFile.master" hash="fffffff60a01aa96" filehash="28a61d47890f5418" flags="110000" assembly="App_Web_masterfile.master.cdcab7d2" type="ASP.masterfile_master">
+    <filedeps>
+        <filedep name="/ProductStoneRequest/MasterFile.master" />
+        <filedep name="/ProductStoneRequest/MasterFile.master.cs" />
+    </filedeps>
+</preserve>

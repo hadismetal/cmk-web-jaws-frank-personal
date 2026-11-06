@@ -1,0 +1,69 @@
+﻿System
+- AC;				Access Control
+
+Setup
+- SetupCompany;		Company
+- SetupLocation;	Location
+- SetupChar;		Characteristics
+- SetupParcel;		Parcel
+
+Database
+- DataStone;		Stone
+- DataProduct;		Product
+- DataHuman;		Human Resource
+- DataSupplier;		Supplier
+- DataProspect;		Prospect
+- DataCustomer;		Customer
+- Packaging;		Packaging
+- Souvenir;		Souvenir
+
+Stone Operation
+- StoneCosting;		Stone Costing
+- StoneInv;			Stone Inventory
+
+Pricing Operation
+- PricingStone;		Stone Pricing
+- PricingTable;		Pricing Table
+- PricingReval;		Pricing Revaluation
+- PricingLabel;		Pricing Label
+
+Production Operation
+- ProductDesign;	Production Design
+- ProductOrder;		Production Order
+- ProductOrderGM;	GM Production Order
+- ProductWS;		Production Workshop
+- ProductOut;		Production Outsource
+
+Stock Control
+- StockReceive;		Stock Receiving
+- StockReceivePS;	Packaging & Souvenir
+- StockInv;		Stock Inventory
+- StockRetire;		Melting Stock
+- StockReturn;		Stock Return
+- StockAudit;		Stock Audit
+- StockRepair;		Stock Repair
+
+Stock Transfer
+- TransOutgoing;	Outgoing Transfer
+- TransIncoming;	Incoming Transfer
+
+Outlet Operation
+- OutletInv;		Outlet Inventory
+- OutletProspect;	Prospect Handling
+- OutletSales;		Point of Sales
+- OutletSupport;	After Sales Support
+- OutletCRM;		Customer Relation
+- ManagementReport;	Management Report
+
+Performance
+- PerformDesigner;	Designer Performance
+- PerformSales;		Sales Commission
+
+Accounting and Tax
+- Accounting;		Accounting
+
+Merchandise
+- Merchandise;		Merchandise
+
+Area Manager
+- AreaManager;		Area Manager

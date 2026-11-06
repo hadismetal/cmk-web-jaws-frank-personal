@@ -1,0 +1,417 @@
+﻿using System;
+using System.Linq;
+using System.Web.UI.WebControls;
+
+public partial class Page_Register_Repair_Submit : System.Web.UI.Page {
+	private Map_DB _db;
+
+	private Map_DB db
+	{
+	    get
+	    {
+	        if (_db == null)
+	            _db = new Map_DB();
+	        return _db;
+	    }
+	}
+
+	public override void Dispose()
+	{
+	    if (db != null)
+	        db.Dispose();
+	    base.Dispose();
+	}
+	protected int myID { get { return App.QueryInt(this); } }
+
+	protected void Page_Load(object sender, EventArgs e) {
+		App.Protect();
+		App.ProtectRole(Role.Operator);
+
+		if (!IsPostBack) {
+			fillForm();
+		}
+	}
+
+	//Exception
+	protected void DataError() { Response.Redirect("Repair_Item.aspx"); }
+
+	//Form
+	protected void fillForm() {
+		var d = db.DocRepairResult.SingleOrDefault(p => p.ID == myID);
+        if (d == null) Response.Redirect("Ndl"); // DataError();
+        else
+        {
+            //Header
+            header_nomor.InnerHtml =
+                "<a href=\"../History/Repair_File.aspx?id=" + d.ID + "\" target=\"_blank\"><i class=\"icon-file-alt\"></i> "
+                + d.Nomor + "</a>";
+
+
+            ////Product Char.
+            var product = d.DocRepairResult_CharProduct;
+            if (product != null)
+            {
+                productitem.InnerHtml = product.CharProductItem.Nama + " (" + product.CharProductItem.NamaKode + ")";
+
+                decimal OngkosRepair = 0m;
+                decimal HargaEmas = 0m;
+                decimal TotalBiaya = 0m;
+
+                decimal HargaBatu = 0m;
+
+                HargaBatu = (from p in d.DocRepairResult_StoneRepair
+                             select p.HargaTotalRupiah).Sum(p => p.Value);
+
+                var prc_tg = db.PricingTableTG.SingleOrDefault(p =>
+                    p.ID == CV.TG_PG1_Pricing &&
+                    p.Harga.HasValue &&
+                    p.ApprovalTgl.HasValue);
+
+                var prc_us = db.PricingTableUS.SingleOrDefault(p =>
+                    p.ID == CV.US_General_Pricing &&
+                    p.Harga.HasValue &&
+                    p.ApprovalTgl.HasValue);
+
+                if (product.SelisihBerat > 0)
+                    HargaEmas = product.SelisihBerat.Value * prc_tg.Harga.Value * prc_us.Harga.Value;
+
+                OngkosRepair = d.DocRepairResult_Repair.Sum(p => p.Biaya.Value);
+
+                TotalBiaya = HargaEmas + OngkosRepair + HargaBatu;
+
+                //Weight
+                grossweight.InnerHtml = Str.Number3(product.GrossWeight);
+                totalbutir.InnerHtml = Str.Number0(product.StoneQty);
+                totalharga.InnerHtml = (Str.Number0(TotalBiaya));
+                selisihberat.InnerHtml = Str.Number2(product.SelisihBerat);
+            }
+
+            //Stone
+            fillStone();
+
+            //Repair Item
+            fillRepairItem();
+
+        }
+	}
+
+    //Repair Item
+    protected void fillRepairItem()
+    {
+        decimal GT = 0;
+
+        var rs = from p in db.DocRepairResult_Repair
+                 where p.IDForm == myID
+                 orderby p.CharProcessRepair.Nama
+                 select p;
+
+        //RESULT
+        int index = 1;
+        foreach (var r in rs)
+        {
+            if (!Response.IsClientConnected) break;
+
+            TableRow tr = new TableRow();
+            TableCell td;
+
+            td = new TableCell();
+            td.Text = "<p>" + index++.ToString() + ".</p>";
+            tr.Cells.Add(td);
+
+            td = new TableCell();
+            td.Text = TD_Nama(r.CharProcessRepair.Nama);
+            tr.Cells.Add(td);
+
+            td = new TableCell();
+            td.Text = Convert.ToDecimal(r.Biaya.Value).ToString("N0");
+            td.CssClass = "text-center";
+            tr.Cells.Add(td);
+
+            td = new TableCell();
+            td.Text = r.Keterangan;
+            tr.Cells.Add(td);
+
+            tb2.Rows.Add(tr);
+        }
+
+        //Total
+        if (rs.Count() > 0)
+        {
+            GT += rs.Sum(p=>p.Biaya.Value);
+        }
+        Sub_Total(GT);
+    }
+
+	//Stone
+	protected void fillStone() {
+		int GT_Butir = 0;
+		decimal GT_Carat = 0;
+        decimal GT_Harga = 0;
+
+		//Stone
+        fillStone(0, ref GT_Butir, ref GT_Carat, ref GT_Harga);
+
+		//Grand-Total
+        Sub_Total(GT_Butir, GT_Carat, GT_Harga, true);
+	}
+
+	//Stone
+	protected void fillStone(int StoneIndex, ref int GT_Butir, ref decimal GT_Carat, ref decimal GT_Harga) {
+		//SELECT
+		var rs = from p in db.DocRepairResult_StoneRepair
+				 where p.IDForm == myID
+				 orderby p.StoneRepair.Nama
+				 select p;
+
+		//Sub-Total
+		int ST_Butir = 0;
+		decimal ST_Carat = 0;
+        decimal ST_Harga = 0;
+
+		//Sub-Header
+		if (rs.Count() > 0) Sub_Header(StoneIndex);
+
+		//RESULT
+		int index = 1;
+		foreach (var r in rs) {
+			if (!Response.IsClientConnected) break;
+
+			TableRow tr = new TableRow();
+			TableCell td;
+
+			td = new TableCell();
+			td.Text = "<p>" + index++.ToString() + ".</p>";
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_Nama(r.StoneRepair.Nama);
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_CaratButir(r.CaratButir);
+			td.CssClass = "text-right";
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_TotalButir(r.TotalButir, ref ST_Butir);
+			td.CssClass = "text-center";
+			tr.Cells.Add(td);
+
+			td = new TableCell();
+			td.Text = TD_TotalCarat(r.TotalCarat, ref ST_Carat);
+			td.CssClass = "text-center";
+			tr.Cells.Add(td);
+
+            td = new TableCell();
+            td.Text = Convert.ToDecimal(r.HargaTotalRupiah.Value).ToString("N0");
+            td.CssClass = "text-center";
+            tr.Cells.Add(td);
+
+            td = new TableCell();
+            td.Text = r.Keterangan;
+            tr.Cells.Add(td);
+
+            ST_Harga += Convert.ToDecimal(r.HargaTotalRupiah.Value);
+
+			tb.Rows.Add(tr);
+		}
+
+		//Total
+		if (rs.Count() > 0) {
+			GT_Butir += ST_Butir;
+			GT_Carat += ST_Carat;
+            GT_Harga += ST_Harga;
+
+            Sub_Total(ST_Butir, ST_Carat, ST_Harga, false);
+		}
+	}
+	//Custom Row
+	protected void Sub_Header(int StoneIndex) {
+		TableRow tr = new TableRow();
+		TableCell td;
+
+		tr.CssClass = "sub-header";
+		string x = string.Empty;
+
+		x += "<br />";
+		x += DL.StoneIndex(StoneIndex);
+
+		td = new TableCell();
+		td.Text = x;
+		td.CssClass = "text-lg text-warning";
+		td.ColumnSpan = App.TableColspan(tb);
+		tr.Cells.Add(td);
+
+		tb.Rows.Add(tr);
+	}
+    protected void Sub_Total(int TotalButir, decimal TotalCarat, decimal TotalHarga, bool GrandTotal)
+    {
+		TableRow tr = new TableRow();
+		TableCell td;
+
+		tr.CssClass = GrandTotal ? "text-grandtotal" : "text-subtotal";
+
+		td = new TableCell();
+		td.ColumnSpan = 3;
+		td.Text += "<p><i class=\"icon-plus-sign-alt\"></i> ";
+		td.Text += GrandTotal ? "Grand Total" : "Sub-Total";
+		td.Text += "</p>";
+		tr.Cells.Add(td);
+
+		td = new TableCell();
+		td.Text = "<p class=\"text-lg\">" + Str.Integer(TotalButir) + "</p>";
+		td.CssClass = "text-center";
+		tr.Cells.Add(td);
+
+		td = new TableCell();
+		td.Text = "<p class=\"text-lg\">" + Str.Number3(TotalCarat) + "</p>";
+		td.CssClass = "text-center";
+		tr.Cells.Add(td);
+
+        td = new TableCell();
+        td.Text = "<p class=\"text-lg\">" + Str.Number0(TotalHarga) + "</p>";
+        td.CssClass = "text-center";
+        tr.Cells.Add(td);
+
+        td = new TableCell();
+        td.Text = "";
+        tr.Cells.Add(td);
+
+		tb.Rows.Add(tr);
+	}
+
+    protected void Sub_Total(decimal Total)
+    {
+        TableRow tr = new TableRow();
+        TableCell td;
+
+        tr.CssClass = "text-grandtotal";
+
+        td = new TableCell();
+        td.ColumnSpan = 2;
+        td.Text += "<p><i class=\"icon-plus-sign-alt\"></i> ";
+        td.Text += "Grand Total";
+        td.Text += "</p>";
+        tr.Cells.Add(td);
+
+        td = new TableCell();
+        td.Text = "<p class=\"text-lg\">" + Str.Number0(Total) + "</p>";
+        td.CssClass = "text-center";
+        tr.Cells.Add(td);
+
+        td = new TableCell();
+        td.Text = "";
+        tr.Cells.Add(td);
+
+        tb2.Rows.Add(tr);
+    }
+
+	//Display Column
+	protected string TD_Nama(string Nama) {
+		string x = string.Empty;
+
+		x += "<p><strong>" + Nama + "</strong></p>";
+
+		return x;
+	}
+	protected string TD_Nama(string Nama, string GIA) {
+		string x = string.Empty;
+
+		x += "<p><strong>" + Nama + "</strong></p>";
+		if (GIA != "")
+			x += "<p class=\"text-muted text-sm\"> " + GIA + "</p>";
+
+		return x;
+	}
+	protected string TD_Dimensi(decimal? Dimensi) {
+		string x = string.Empty;
+
+		x += "<p>" + Str.Number2(Dimensi) + "</p>";
+
+		return x;
+	}
+	protected string TD_CaratButir(decimal? CaratButir) {
+		string x = string.Empty;
+
+		x += "<p class=\"text-muted\">" + Str.Number3(CaratButir) + "</p>";
+
+		return x;
+	}
+	protected string TD_TotalButir(int? TotalButir, ref int ST) {
+		string x = string.Empty;
+
+		x += "<p class=\"text-lg text-success\">" + Str.Integer(TotalButir) + "</p>";
+
+		//Sub-Total
+		if (TotalButir.HasValue) ST += TotalButir.Value;
+
+		return x;
+	}
+	protected string TD_TotalCarat(decimal? TotalCarat, ref decimal ST) {
+		string x = string.Empty;
+
+		x += "<p class=\"text-lg text-info\">" + Str.Number3(TotalCarat) + "</p>";
+
+		//Sub-Total
+		if (TotalCarat.HasValue) ST += TotalCarat.Value;
+
+		return x;
+	}
+
+    protected string Generate_Nomor(DocRepairResult d)
+    {
+        string x = string.Empty;
+
+        int Tahun = d.Tgl.Value.Year;
+        int Bulan = d.Tgl.Value.Month;
+
+        int Nomor = 1;
+
+        try
+        {
+            var s = (from p in db.DocRepairResult
+                     where p.Tgl.Value.Year == Tahun && p.Tgl.Value.Month == Bulan
+                     && p.Nomor != null
+                     orderby (p.Nomor.Substring(14, 6)) descending
+                     select p).First();
+
+            if (s.Nomor != null)
+                Nomor = Convert.ToInt32(s.Nomor.Substring(14, 6)) + 1;
+        }
+        catch (Exception ex) { }
+
+        string docid = "INV/RPR/" + Tahun.ToString().Remove(0, 2) + "/" + Bulan.ToString().PadLeft(2,'0') + "/" + Str.KodeFormat(Nomor, 6);
+
+        return docid;
+
+    }
+
+    protected string Generate_Nomor(SalesOrderRepair j)
+    {
+        string x = string.Empty;
+
+        int Tahun = DateTime.Now.Year;
+        int Bulan = DateTime.Now.Month;
+
+        //int Nomor = db.SalesOrder.Count(p => p.Tgl.Value.Year == Tahun && p.Tgl.Value.Month == Bulan );
+        //Nomor = Nomor + 1;
+
+        int Nomor = 1;
+
+        try
+        {
+            var s = (from p in db.SalesOrder
+                     where p.Tgl.Value.Year == Tahun && p.Tgl.Value.Month == Bulan
+                     && p.Nomor.Substring(3, 1) == "" + j.TipeLokasi.Value.ToString() + ""
+                     && p.Nomor.Substring(5, 3) == "" + j.IDLokasi.Value.ToString().PadLeft(3, '0') + ""
+                     orderby p.ID descending
+                     select p).First();
+
+            if (s.Nomor != null)
+                Nomor = Convert.ToInt32(s.Nomor.Substring(17, 4)) + 1;
+        }
+        catch (Exception ex) { }
+
+        return "SO/RPR/" + j.TipeLokasi.Value.ToString() + "/" + j.IDLokasi.Value.ToString().PadLeft(3, '0') + "/" + Str.KodeFormat(Tahun, Bulan, Nomor, 4);
+    }
+}

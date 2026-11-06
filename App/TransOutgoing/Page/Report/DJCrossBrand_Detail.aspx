@@ -1,0 +1,112 @@
+﻿<%@ page EnableEventValidation="false" language="C#" masterpagefile="~/MasterPage.master" autoeventwireup="true" codefile="DJCrossBrand_Detail.aspx.cs" inherits="DJ_Detail" %>
+
+<asp:content contentplaceholderid="h1" runat="server">
+	Diamond Jewelry
+</asp:content>
+<asp:content contentplaceholderid="h1_st" runat="server">
+	Report
+</asp:content>
+
+<asp:content contentplaceholderid="content" runat="server">
+<form id="Form1" runat="server">
+	<div>
+        <div style="float:left;">
+			<table class="table-file">
+                <tr>
+			        <td class="text-label">Report Datetime</td>
+			        <td>:</td>
+			        <td id="report_datetime" runat="server" class="text-bold" />
+		        </tr>
+		        <tr>
+			        <td class="text-label">Company Brand From</td>
+			        <td>:</td>
+			        <td id="brandFrom" runat="server" class="text-bold" />
+		        </tr>
+		        <tr>
+			        <td class="text-label">From <asp:Literal runat="server" ID="lit_type_from" /></td>
+			        <td>:</td>
+			        <td id="from" runat="server" class="text-bold" />
+		        </tr
+				<tr>
+			        <td class="text-label">Company Brand To</td>
+			        <td>:</td>
+			        <td id="brandTo" runat="server" class="text-bold" />
+		        </tr>
+                <tr>
+			        <td class="text-label">To <asp:Literal runat="server" ID="lit_type_to" /></td>
+			        <td>:</td>
+			        <td id="to" runat="server" class="text-bold" />
+		        </tr>
+                <tr>
+			        <td class="text-label">Status <asp:Literal runat="server" ID="lit_status" /></td>
+			        <td>:</td>
+			        <td id="status" runat="server" class="text-bold" />
+		        </tr>
+	        </table>
+		</div>
+		<div style="float:left; padding:0 0 0 50px;">
+			<table class="table-file">
+                <tr>
+			        <td class="text-label">Approve Datetime</td>
+			        <td>:</td>
+			        <td id="tglkirim" runat="server" class="text-bold" />
+		        </tr>
+		        <tr>
+			        <td class="text-label">Document #</td>
+			        <td>:</td>
+			        <td id="nomor" runat="server" class="text-bold" />
+		        </tr>
+                <tr>
+			        <td class="text-label">Courier</td>
+			        <td>:</td>
+			        <td id="kurir" runat="server" class="text-bold" />
+		        </tr>
+                <tr>
+			        <td class="text-label">Description</td>
+			        <td>:</td>
+			        <td id="keterangan" runat="server" class="text-bold" />
+		        </tr>
+	        </table>
+		</div>
+        <div style="clear:both"></div>
+    </div>
+    <hr />
+	<div class="row">
+        <br class="visible-sm visible-xs" />
+		<div class="col-md-5">
+            <div class="table-responsive">
+			    <asp:table id="tb" runat="server" cssclass="table-report">
+				    <asp:tableheaderrow>
+					    <asp:tableheadercell style="text-align:center;" width="50">No.</asp:tableheadercell>
+                        <asp:tableheadercell style="text-align:center;" width="100">PLU</asp:tableheadercell>
+                        <asp:tableheadercell style="text-align:center;" width="160">Category</asp:tableheadercell>
+                        <asp:tableheadercell style="text-align:center;" width="100">Item</asp:tableheadercell>
+					    <asp:tableheadercell style="text-align:center;" width="60">Qty</asp:tableheadercell>
+                        <asp:tableheadercell style="text-align:center;" width="60">Netto</asp:tableheadercell>
+                        <asp:tableheadercell style="text-align:center;" width="60">Gross</asp:tableheadercell>
+                        <asp:tableheadercell style="text-align:center;" width="60">Stone</asp:tableheadercell>
+			            <asp:tableheadercell style="text-align:center;" width="60">Carat</asp:tableheadercell>
+			            <asp:tableheadercell style="text-align:center;" width="120">Selling Price</asp:tableheadercell>
+                        <asp:tableheadercell style="text-align:center;" width="120">Promo Price</asp:tableheadercell>
+                    </asp:tableheaderrow>
+			    </asp:table>
+		    </div>
+        </div>
+	</div>
+	<hr />
+    <div class="row">
+        <br class="visible-sm visible-xs" />
+		<div class="col-md-5">
+            <button id="save" runat="server" class="btn btn-primary" onserverclick="back_Click">
+				<i class="icon-arrow-left"></i>
+				Back
+			</button>
+            <button id="print" runat="server" class="btn btn-primary" onserverclick="print_Click">
+				<i class="icon-print"></i>
+				Print
+			</button>
+		</div>
+    </div>
+</form>
+</asp:content>
+

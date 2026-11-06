@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Information/StoneFluorCreate.aspx" hash="fffffff60a01aa96" filehash="fd939f2ed70f5bf" flags="110000" assembly="App_Web_stonefluorcreate.aspx.2e6da1b0" type="ASP.page_information_stonefluorcreate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Information/StoneFluorCreate.aspx" />
+        <filedep name="/SetupChar/Page/Information/StoneFluorCreate.aspx.cs" />
+    </filedeps>
+</preserve>

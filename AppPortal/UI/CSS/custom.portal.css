@@ -1,0 +1,27 @@
+﻿/* Basic */
+body.basic { padding-top: 15px; padding-bottom: 15px; }
+body.basic #div_icon { padding-top: 10px; color: beige; font-size: 28pt; text-align: right; }
+body.basic div#footer { border-top: dotted 1px #CCC; padding-top: 25px; margin-top: 25px; }
+
+/* Activation */
+body.basic #content_sk { font-family: Cambria; letter-spacing: 2px; color: orange; margin-bottom: 25px; }
+
+/* Sign-In */
+body.basic div#content_gagal { margin-top: 25px; }
+body.basic div#content_debug { margin-bottom: 25px; color: red; }
+
+/* Homepage : Ketentuan */
+body.basic div#content_ketentuan ol li { margin-bottom: 15px; line-height: 1.5; }
+body.basic div#content_ketentuan ul li { margin-bottom: 0px; }
+body.basic div#content_ketentuan strong { color: orange; }
+body.basic div#content_ketentuan u { color: brown; font-weight: bold; }
+
+/* Homepage : Module List */
+body.basic div#content_module { margin-top: -26px; }
+body.basic div#content_module h4 { margin-top: 26px; color: black; }
+body.basic div#content_module a { font-size: 13px; width: 158px; text-align: left; }
+
+/* Appendix */
+body.ap { padding: 10px 0px 20px 0px; }
+body.ap h1 { font-size: 20pt; }
+body.ap div#callout { top: 58px; }

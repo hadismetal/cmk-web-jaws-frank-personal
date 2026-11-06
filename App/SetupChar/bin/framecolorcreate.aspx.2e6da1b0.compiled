@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Information/FrameColorCreate.aspx" hash="fffffff60a01aa96" filehash="b4eaea05dcf16ad3" flags="110000" assembly="App_Web_framecolorcreate.aspx.2e6da1b0" type="ASP.page_information_framecolorcreate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Information/FrameColorCreate.aspx" />
+        <filedep name="/SetupChar/Page/Information/FrameColorCreate.aspx.cs" />
+    </filedeps>
+</preserve>

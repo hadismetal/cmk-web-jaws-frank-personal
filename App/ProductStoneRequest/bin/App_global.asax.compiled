@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="8" virtualPath="/ProductStoneRequest/global.asax" hash="ffffffffb4804dc2" filehash="fffff6f893419f6c" flags="150000" assembly="App_global.asax" type="ASP.global_asax">
+    <filedeps>
+        <filedep name="/ProductStoneRequest/global.asax" />
+    </filedeps>
+</preserve>

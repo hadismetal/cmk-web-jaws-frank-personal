@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/ProductStoneRequest/MasterPage.master" hash="fffffff60a01aa96" filehash="98995014f62ae3de" flags="110000" assembly="App_Web_masterpage.master.cdcab7d2" type="ASP.masterpage_master">
+    <filedeps>
+        <filedep name="/ProductStoneRequest/MasterPage.master" />
+        <filedep name="/ProductStoneRequest/MasterPage.master.cs" />
+        <filedep name="/ProductStoneRequest/Menu.ascx" />
+        <filedep name="/ProductStoneRequest/Menu.ascx.cs" />
+    </filedeps>
+</preserve>

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/SetupChar/Page/Information/DesignProcessCreate.aspx" hash="fffffff60a01aa96" filehash="2d63551fb2c75de" flags="110000" assembly="App_Web_designprocesscreate.aspx.2e6da1b0" type="ASP.page_information_designprocesscreate_aspx">
+    <filedeps>
+        <filedep name="/SetupChar/MasterFile.master" />
+        <filedep name="/SetupChar/MasterFile.master.cs" />
+        <filedep name="/SetupChar/Page/Information/DesignProcessCreate.aspx" />
+        <filedep name="/SetupChar/Page/Information/DesignProcessCreate.aspx.cs" />
+    </filedeps>
+</preserve>

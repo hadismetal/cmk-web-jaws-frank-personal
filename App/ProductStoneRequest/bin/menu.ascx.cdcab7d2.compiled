@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<preserve resultType="3" virtualPath="/ProductStoneRequest/Menu.ascx" hash="fffffff60a01aa96" filehash="912c554ca91c5884" flags="110000" assembly="App_Web_menu.ascx.cdcab7d2" type="ASP.menu_ascx">
+    <filedeps>
+        <filedep name="/ProductStoneRequest/Menu.ascx" />
+        <filedep name="/ProductStoneRequest/Menu.ascx.cs" />
+    </filedeps>
+</preserve>
